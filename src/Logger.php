@@ -11,7 +11,7 @@
 
 namespace Hail\Console;
 
-use Hail\Util\SingletonTrait;
+use Hail\Singleton\SingletonTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Psr\Log\LogLevel;
@@ -62,11 +62,11 @@ class Logger implements LoggerInterface
     public $formatter;
 
     /**
-     * @var resource
+     * @var resource|null
      */
     private $stream;
 
-    public function init()
+    protected function init(): void
     {
         $this->formatter = Formatter::getInstance();
         $this->stream = \fopen('php://output', 'wb');

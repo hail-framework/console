@@ -11,7 +11,7 @@
 
 namespace Hail\Console;
 
-use Hail\Util\SingletonTrait;
+use Hail\Singleton\SingletonTrait;
 
 /**
  * Console output formatter class

@@ -3,9 +3,8 @@ namespace Hail\Console\Component\Progress;
 
 use Hail\Console\Formatter;
 use Hail\Console\ConsoleInfo\ConsoleInfoFactory;
-use Hail\Console\Ansi\Colors;
 
-class ProgressBar implements ProgressReporter
+class ProgressBar
 {
     protected $terminalWidth = 78;
 
@@ -90,10 +89,10 @@ class ProgressBar implements ProgressReporter
         ], $this->descFormat);
 
         $barSize = $this->terminalWidth
-            - mb_strlen($desc)
-            - mb_strlen($this->leftDecorator)
-            - mb_strlen($this->rightDecorator)
-            - mb_strlen($this->columnDecorator)
+            - \mb_strlen($desc)
+            - \mb_strlen($this->leftDecorator)
+            - \mb_strlen($this->rightDecorator)
+            - \mb_strlen($this->columnDecorator)
             ;
 
         if ($this->title) {

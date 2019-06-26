@@ -12,7 +12,7 @@
 namespace Hail\Console\Option;
 
 use Hail\Console\Formatter;
-use Hail\Util\SingletonTrait;
+use Hail\Singleton\SingletonTrait;
 
 class OptionPrinter
 {

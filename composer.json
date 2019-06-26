@@ -28,7 +28,11 @@
   ],
   "require": {
     "php": ">=7.1.3",
+    "ext-mbstring": "*",
     "hail/singleton": "^1.0.0",
     "psr/log": "^1.1.0"
+  },
+  "suggest": {
+    "ext-readline": "Console utilities using readline."
   }
 }

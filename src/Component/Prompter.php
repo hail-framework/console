@@ -2,6 +2,7 @@
 
 namespace Hail\Console\Component;
 
+use Hail\Console\ExceptionPrinter;
 use Hail\Console\Formatter;
 use Hail\Console\IO\Console;
 use Hail\Console\IO\Factory;
@@ -161,7 +162,7 @@ class Prompter
         $choicesMap = [];
 
         $i = 0;
-        if (\Arrays::isAssoc($choices)) {
+        if (ExceptionPrinter::arrayIsAssoc($choices)) {
             foreach ($choices as $choice => $value) {
                 $choicesMap[++$i] = $value;
                 echo "\t$i: " . $choice . ' => ' . $value . "\n";

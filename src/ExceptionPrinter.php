@@ -6,21 +6,12 @@ use Exception;
 
 class ExceptionPrinter
 {
-    public $reportUrl;
-
-    public $logger;
-
-    public function __construct(Logger $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    public static function dumpVar($var)
+    public static function dumpVar($var): string
     {
         return self::output($var);
     }
 
-    public static function dumpArgs(array $args)
+    public static function dumpArgs(array $args): string
     {
         if (empty($args)) {
             return '';
@@ -31,7 +22,7 @@ class ExceptionPrinter
             $desc[] = self::output($a);
         }
 
-        return implode(', ', $desc);
+        return \implode(', ', $desc);
     }
 
     public static function dumpTraceInPhar(Exception $e): void
@@ -106,7 +97,7 @@ class ExceptionPrinter
         Logger::getInstance()->error($error);
     }
 
-    public static function dump(Exception $e, $debug = false)
+    public static function dump(Exception $e, bool $debug = false)
     {
         static::dumpBrief($e);
 
@@ -118,38 +109,46 @@ class ExceptionPrinter
         }
     }
 
-    protected static function output($a)
+    protected static function output($a): string
     {
-        if (is_array($a)) {
-            if (!\Arrays::isAssoc($a)) {
-                $out = [];
+        if (\is_array($a)) {
+            $out = '';
+            if (!self::arrayIsAssoc($a)) {
                 foreach ($a as $i) {
-                    $out[] = self::output($i);
+                    $out .= self::output($i) . ', ';
                 }
-
-                return '[' . implode(', ', $out) . ']';
+            } else {
+                foreach ($a as $k => $i) {
+                    $out .= $k . ' => ' . self::output($i) . ', ';
+                }
             }
-            $out = '[';
-            foreach ($a as $k => $i) {
-                $out .= $k . ' => ' . self::output($i);
-            }
-            $out .= ']';
 
-            return $out;
+            return '[' . \substr($out, 0, -2) . ']';
         }
 
-        if (is_scalar($a)) {
-            return var_export($a, true);
+        if (\is_scalar($a)) {
+            return \var_export($a, true);
         }
 
-        if (is_object($a)) {
-            if (method_exists($a, '__toString')) {
+        if (\is_object($a)) {
+            if (\method_exists($a, '__toString')) {
                 return $a->__toString();
             }
 
-            return get_class($a);
+            return \get_class($a);
         }
 
         return '...';
+    }
+
+    public static function arrayIsAssoc(array $array): bool
+    {
+        if (!isset($array[0])) {
+            return true;
+        }
+
+        $keys = \array_keys($array);
+
+        return $keys !== \array_keys($keys);
     }
 }

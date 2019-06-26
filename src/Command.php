@@ -13,7 +13,6 @@ namespace Hail\Console;
 use Hail\Console\Exception\ExtensionException;
 use Hail\Console\Extension\AbstractExtension;
 use Hail\Console\Option\OptionResult;
-use Hail\DITrait;
 
 /**
  * abstract command class
@@ -21,7 +20,6 @@ use Hail\DITrait;
  */
 abstract class Command implements CommandInterface
 {
-    use DITrait;
     use CommandTrait;
 
     /**
