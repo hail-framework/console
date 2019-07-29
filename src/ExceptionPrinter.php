@@ -2,7 +2,7 @@
 
 namespace Hail\Console;
 
-use Exception;
+use Throwable;
 
 class ExceptionPrinter
 {
@@ -25,7 +25,7 @@ class ExceptionPrinter
         return \implode(', ', $desc);
     }
 
-    public static function dumpTraceInPhar(Exception $e): void
+    public static function dumpTraceInPhar(Throwable $e): void
     {
         $logger = Logger::getInstance();
 
@@ -39,7 +39,7 @@ class ExceptionPrinter
         $logger->newline();
     }
 
-    public static function dumpTrace(Exception $e): void
+    public static function dumpTrace(Throwable $e): void
     {
         $logger = Logger::getInstance();
 
@@ -61,7 +61,7 @@ class ExceptionPrinter
         $logger->newline();
     }
 
-    public static function dumpCodeBlock(Exception $e)
+    public static function dumpCodeBlock(Throwable $e)
     {
         $line = $e->getLine();
         $file = $e->getFile();
@@ -83,7 +83,7 @@ class ExceptionPrinter
         $logger->newline();
     }
 
-    public static function dumpBrief(Exception $e): void
+    public static function dumpBrief(Throwable $e): void
     {
         $code = $e->getCode();
         $message = $e->getMessage();
@@ -97,7 +97,7 @@ class ExceptionPrinter
         Logger::getInstance()->error($error);
     }
 
-    public static function dump(Exception $e, bool $debug = false)
+    public static function dump(Throwable $e, bool $debug = false)
     {
         static::dumpBrief($e);
 
