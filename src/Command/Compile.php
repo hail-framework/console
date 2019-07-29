@@ -20,7 +20,7 @@ use Phar;
  */
 class Compile extends Command
 {
-    public function brief()
+    public function brief(): string
     {
         return 'compile current source into Phar format library file.';
     }

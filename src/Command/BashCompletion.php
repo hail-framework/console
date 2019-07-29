@@ -22,7 +22,7 @@ class BashCompletion extends Command
         return 'bash';
     }
 
-    public function brief()
+    public function brief(): string
     {
         return 'This command generate a bash completion script automatically';
     }

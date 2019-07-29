@@ -21,7 +21,7 @@ class Help extends Command
     /**
      * one line description.
      */
-    public function brief()
+    public function brief(): string
     {
         return 'Show help message of a command';
     }

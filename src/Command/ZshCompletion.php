@@ -22,7 +22,7 @@ class ZshCompletion extends Command
         return 'zsh';
     }
 
-    public function brief()
+    public function brief(): string
     {
         return 'This function generate a zsh-completion script automatically';
     }

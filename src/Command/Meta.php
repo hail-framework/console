@@ -14,7 +14,7 @@ use InvalidArgumentException;
 
 class Meta extends Command
 {
-    public function brief()
+    public function brief(): string
     {
         return 'Return the meta data of a commands.';
     }
