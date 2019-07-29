@@ -135,7 +135,7 @@ class Application implements CommandInterface
             $this->logger->error($e->getMessage());
             $this->logger->error('Seems like an application logic error, please contact the developer.');
         } catch (\Throwable $e) {
-            ExceptionPrinter::dump($e, $this->getOption('debug'));
+            ExceptionPrinter::dump($e, $this->getOption('debug') ?? false);
         }
 
         return false;
