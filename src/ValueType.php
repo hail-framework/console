@@ -9,7 +9,7 @@ class ValueType
 
     protected static function type(string $type)
     {
-        $type = strtolower($type);
+        $type = \strtolower($type);
         switch ($type) {
             case 'bool':
                 return 'boolean';
@@ -26,7 +26,7 @@ class ValueType
     {
         $fn = self::type($type) . 'Test';
 
-        if (!method_exists('self', $fn)) {
+        if (!\method_exists(self::class, $fn)) {
             return null;
         }
 
@@ -51,8 +51,8 @@ class ValueType
 
     protected static function booleanTest($value): bool
     {
-        if (is_string($value)) {
-            $value = strtolower($value);
+        if (\is_string($value)) {
+            $value = \strtolower($value);
 
             if ($value === '1' || $value === 'true') {
                 self::$parsed = true;
@@ -65,7 +65,7 @@ class ValueType
 
                 return true;
             }
-        } elseif (is_bool($value)) {
+        } elseif (\is_bool($value)) {
             self::$parsed = $value;
 
             return true;
@@ -96,7 +96,7 @@ class ValueType
      */
     protected static function dateTest($value): bool
     {
-        if (!preg_match('/^\d{4,14}$/', $value)) {
+        if (!\preg_match('/^\d{4,14}$/', $value)) {
             return false;
         }
 
@@ -127,17 +127,17 @@ class ValueType
 
     protected static function dirTest($value): bool
     {
-        return self::fileInfo(is_dir($value), $value);
+        return self::fileInfo(\is_dir($value), $value);
     }
 
     protected static function fileTest($value): bool
     {
-        return self::fileInfo(is_file($value), $value);
+        return self::fileInfo(\is_file($value), $value);
     }
 
     protected static function pathTest($value): bool
     {
-        return self::fileInfo(file_exists($value), $value);
+        return self::fileInfo(\file_exists($value), $value);
     }
 
     protected static function fileInfo($check, $value): bool
@@ -183,9 +183,9 @@ class ValueType
         $value = (string) $value;
 
         if ($options === null) {
-            $check = filter_var($value, $filter);
+            $check = \filter_var($value, $filter);
         } else {
-            $check = filter_var($value, $filter, $options);
+            $check = \filter_var($value, $filter, $options);
         }
 
 
@@ -213,7 +213,7 @@ class ValueType
 
     protected static function numberTest($value): bool
     {
-        if (is_numeric($value)) {
+        if (\is_numeric($value)) {
             self::$parsed = $value + 0;
 
             return true;
@@ -226,7 +226,7 @@ class ValueType
     {
         $value = (string) $value;
 
-        if (preg_match($regex, $value) !== 0) {
+        if (\preg_match($regex, $value) !== 0) {
             self::$parsed = $value;
 
             return true;
@@ -237,7 +237,7 @@ class ValueType
 
     protected static function stringTest($value): bool
     {
-        if (is_string($value)) {
+        if (\is_string($value)) {
             self::$parsed = $value;
 
             return true;
