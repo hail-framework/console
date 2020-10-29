@@ -2,6 +2,7 @@
 
 namespace Hail\Console\Component\Table;
 
+use Hail\Console\Component\Table\Style\{NormalStyle, MarkdownStyle};
 use InvalidArgumentException;
 
 /**
@@ -64,52 +65,50 @@ class Table
 
     public function __construct()
     {
-        $this->style = new TableStyle;
-        $this->defaultCellAttribute = new CellAttribute;
+        $this->style = new NormalStyle();
+        $this->defaultCellAttribute = new CellAttribute();
     }
 
-    public function setHeaders(array $headers)
+    public function setHeaders(array $headers): self
     {
         $this->headers = $headers;
 
         return $this;
     }
 
-    public function setFooter($footer)
+    public function setFooter($footer): self
     {
         $this->footer = $footer;
 
         return $this;
     }
 
-    public function setColumnCellAttribute($colIndex, CellAttribute $cellAttribute)
+    public function setColumnCellAttribute(int $colIndex, CellAttribute $cellAttribute)
     {
         $this->columnCellAttributes[$colIndex] = $cellAttribute;
     }
 
-    public function getColumnCellAttribute($colIndex)
+    public function getColumnCellAttribute(int $colIndex): ?CellAttribute
     {
-        if (isset($this->columnCellAttributes[$colIndex])) {
-            return $this->columnCellAttributes[$colIndex];
-        }
+        return $this->columnCellAttributes[$colIndex] ?? null;
     }
 
-    public function getDefaultCellAttribute()
+    public function getDefaultCellAttribute(): CellAttribute
     {
         return $this->defaultCellAttribute;
     }
 
-    public function setMaxColumnWidth($width)
+    public function setMaxColumnWidth(int $width): self
     {
         $this->maxColumnWidth = $width;
+
+        return $this;
     }
 
     /**
      * Gets number of columns for this table.
-     *
-     * @return int
      */
-    private function getNumberOfColumns()
+    private function getNumberOfColumns(): int
     {
         if (null !== $this->numberOfColumns) {
             return $this->numberOfColumns;
@@ -123,11 +122,11 @@ class Table
         return $this->numberOfColumns = \max($columns);
     }
 
-    public function addRow($row)
+    public function addRow(?array $row): self
     {
         $this->rows[] = $row;
 
-        if ($row instanceof RowSeparator) {
+        if ($row === null) {
             return $this;
         }
 
@@ -193,9 +192,10 @@ class Table
 
         $lengths = [];
         foreach ($this->rows as $row) {
-            if ($row instanceof RowSeparator) {
+            if ($row === null) {
                 continue;
             }
+
             if (isset($row[$col])) {
                 if (\is_array($row[$col])) {
                     if (!isset($row[$col][1])) {
@@ -254,7 +254,7 @@ class Table
         return $this;
     }
 
-    public function renderSeparator()
+    public function renderSeparator(): string
     {
         $columnNumber = $this->getNumberOfColumns();
         $out = $this->style->rowSeparatorLeftmostCrossChar;
@@ -358,10 +358,7 @@ class Table
         $out .= $this->style->verticalBorderChar;
         $columnNumber = $this->getNumberOfColumns();
         for ($c = 0; $c < $columnNumber; $c++) {
-            $cell = '';
-            if (isset($this->footer[$c])) {
-                $cell = $this->footer[$c];
-            }
+            $cell = $this->footer[$c] ?? '';
 
             $out .= $this->renderCell($c, $cell);
             $out .= $this->style->verticalBorderChar;
@@ -386,7 +383,7 @@ class Table
         }
 
         foreach ($this->rows as $rowIndex => $row) {
-            if ($row instanceof RowSeparator) {
+            if ($row === null) {
                 $out .= $this->renderSeparator();
             } else {
                 $out .= $this->renderRow($rowIndex, $row);
@@ -394,7 +391,7 @@ class Table
         }
 
         // Markdown table does not support footer
-        if ($this->style && !$this->style instanceof MarkdownTableStyle) {
+        if ($this->style && !$this->style instanceof MarkdownStyle) {
             if (!empty($this->footer)) {
                 $out .= $this->renderFooter();
             } else {

@@ -16,31 +16,23 @@ abstract class AbstractExtension
     /**
      * init method is called when the extension is added to the pool.
      */
-    public function init()
-    {
-    }
+    abstract public function init();
 
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return true;
     }
 
-    public function isAvailable()
+    public function isAvailable(): bool
     {
         return static::isSupported();
     }
 
-    public function prepare()
-    {
-    }
+    abstract public function prepare(): void;
 
-    public function execute()
-    {
-    }
+    abstract public function execute(): void;
 
-    public function finish()
-    {
-    }
+    abstract public function finish(): void;
 
     public function getOutput()
     {

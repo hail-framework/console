@@ -5,7 +5,7 @@ namespace Hail\Console\Command;
 use Hail\Console\Command;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
-use Phar;
+use Phar as PharNative;
 
 /**
  * Compile package to phar file.
@@ -18,7 +18,7 @@ use Phar;
  * {{Halt Compiler}}
  * {{Content Section}}
  */
-class Compile extends Command
+class Phar extends Command
 {
     public function brief(): string
     {
@@ -59,8 +59,8 @@ class Compile extends Command
 
         $logger->debug("Creating phar file $pharFile...");
 
-        $phar = new Phar($pharFile, 0, $pharFile);
-        $phar->setSignatureAlgorithm(Phar::SHA1);
+        $phar = new PharNative($pharFile, 0, $pharFile);
+        $phar->setSignatureAlgorithm(PharNative::SHA1);
         $phar->startBuffering();
 
         $excludePatterns = $this->getOption('exclude');
@@ -174,16 +174,16 @@ EOT;
         $phar->setStub($stub);
         $phar->stopBuffering();
 
-        $compress_type = Phar::GZ;
+        $compress_type = PharNative::GZ;
         if ($this->getOption('no-compress')) {
             $compress_type = null;
         } elseif ($v = $this->getOption('compress')) {
             switch ($v) {
                 case 'gz':
-                    $compress_type = Phar::GZ;
+                    $compress_type = PharNative::GZ;
                     break;
                 case 'bz2':
-                    $compress_type = Phar::BZ2;
+                    $compress_type = PharNative::BZ2;
                     break;
                 default:
                     throw new \InvalidArgumentException("Compress type: $v is not supported, valids are gz, bz2");

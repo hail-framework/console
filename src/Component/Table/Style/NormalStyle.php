@@ -1,14 +1,13 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Style;
 
-class TableStyle
+class NormalStyle
 {
     public $cellPadding = 1;
 
     public $cellPaddingChar = ' ';
 
     public $verticalBorderChar = '|';
-
 
     public $rowSeparatorBorderChar = '-';
 

@@ -15,7 +15,7 @@ class DaemonExtension extends AbstractExtension
 
     protected static $supported;
 
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         if (self::$supported === null) {
             self::$supported = \function_exists('\pcntl_fork');
@@ -24,7 +24,12 @@ class DaemonExtension extends AbstractExtension
         return self::$supported;
     }
 
-    public function finish()
+    public function prepare(): void
+    {
+        // nothing
+    }
+
+    public function finish(): void
     {
         $pidFile = $this->getPidFilePath();
         if (\file_exists($pidFile)) {
@@ -32,7 +37,7 @@ class DaemonExtension extends AbstractExtension
         }
     }
 
-    public function execute()
+    public function execute(): void
     {
         if (!$this->isAvailable()) {
             throw new ExtensionException('pcntl_fork() is not supported.');

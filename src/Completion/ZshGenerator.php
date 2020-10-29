@@ -8,7 +8,6 @@ use Hail\Console\Argument;
 use Hail\Console\CommandInterface;
 use Hail\Console\Command;
 use Hail\Console\Option\Option;
-use Exception;
 
 class ZshGenerator
 {
@@ -120,13 +119,18 @@ class ZshGenerator
         } elseif ($opt->short) {
             $str .= "'-" . $opt->short . $optspec;
         } else {
-            throw new Exception('undefined option type');
+            throw new \RuntimeException('undefined option type');
         }
 
         // output description
         $str .= "[" . addcslashes($opt->desc, '[]:') . "]";
 
-        $placeholder = ($opt->valueName) ? $opt->valueName : $opt->isa ? $opt->isa : null;
+        $placeholder = null;
+        if ($opt->valueName) {
+            $placeholder = $opt->valueName;
+        } elseif ($opt->isa) {
+            $placeholder = $opt->isa;
+        }
 
         // has anything to complete
         if ($opt->validValues || $opt->suggestions || $opt->isa) {

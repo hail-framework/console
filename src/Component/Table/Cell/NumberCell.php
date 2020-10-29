@@ -1,9 +1,10 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Cell;
 
+use Hail\Console\Component\Table\CellAttribute;
 use NumberFormatter;
 
-class NumberFormatCell extends CellAttribute
+class NumberCell extends CellAttribute
 {
     protected $locale;
 

@@ -1,17 +1,11 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Style;
 
-class BorderlessTableStyle extends TableStyle
+class BorderlessStyle extends NormalStyle
 {
-//    public $cellPadding = 1;
-
-//    public $cellPaddingChar = ' ';
-
     public $verticalBorderChar = ' ';
 
     public $drawTableBorder = false;
-
-//    public $drawRowSeparator = false;
 
     public $rowSeparatorCrossChar = ' ';
 

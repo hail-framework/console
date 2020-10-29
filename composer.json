@@ -27,6 +27,7 @@
     "psr/log": "^1.1.0"
   },
   "suggest": {
-    "ext-readline": "Console utilities using readline."
+    "ext-readline": "Console utilities using readline.",
+    "ext-intl": "Use for Cell formater in Table Component"
   }
 }

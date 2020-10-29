@@ -1,9 +1,9 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Cell;
 
 use NumberFormatter;
 
-class SpellOutNumberFormatCell extends NumberFormatCell
+class SpellOutNumberCell extends NumberCell
 {
     public function __construct($locale)
     {

@@ -1,12 +1,11 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Cell;
 
 use IntlDateFormatter;
 use DateTime;
 
-class DateFormatCell extends NumberFormatCell
+class DateCell extends NumberCell
 {
-
     /**
      * IntlDateFormatter::FULL (integer)
         Completely specified style (Tuesday, April 12, 1952 AD or 3:30:42pm PST)

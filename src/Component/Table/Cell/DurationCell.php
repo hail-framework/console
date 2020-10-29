@@ -1,9 +1,9 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Cell;
 
 use NumberFormatter;
 
-class DurationFormatCell extends NumberFormatCell
+class DurationCell extends NumberCell
 {
     public function __construct($locale)
     {

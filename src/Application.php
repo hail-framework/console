@@ -20,7 +20,7 @@ use Hail\Console\Command\Help;
 use Hail\Console\Command\ZshCompletion;
 use Hail\Console\Command\BashCompletion;
 use Hail\Console\Command\Meta;
-use Hail\Console\Command\Compile;
+use Hail\Console\Command\Phar;
 
 use Hail\Console\Option\OptionResult;
 use Psr\Log\LogLevel;
@@ -82,7 +82,7 @@ class Application implements CommandInterface
         $this->addCommandGroup('Development Commands', [
             ZshCompletion::class,
             BashCompletion::class,
-            Compile::class,
+            Phar::class,
             Meta::class,
         ])->setId('dev');
 

@@ -1,7 +1,7 @@
 <?php
-namespace Hail\Console\Component\Table;
+namespace Hail\Console\Component\Table\Cell;
 
-class CurrencyFormatCell extends NumberFormatCell
+class CurrencyCell extends NumberCell
 {
     protected $currency;
 
