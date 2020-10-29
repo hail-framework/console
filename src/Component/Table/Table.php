@@ -65,7 +65,7 @@ class Table
 
     public function __construct()
     {
-        $this->style = new NormalStyle();
+        $this->style = NormalStyle::getInstance();
         $this->defaultCellAttribute = new CellAttribute();
     }
 

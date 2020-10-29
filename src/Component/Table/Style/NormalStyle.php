@@ -1,8 +1,12 @@
 <?php
 namespace Hail\Console\Component\Table\Style;
 
+use Hail\Singleton\SingletonTrait;
+
 class NormalStyle
 {
+    use SingletonTrait;
+
     public $cellPadding = 1;
 
     public $cellPaddingChar = ' ';
