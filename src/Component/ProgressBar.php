@@ -54,14 +54,18 @@ class ProgressBar
         }
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
     }
 
-    public function setUnit(string $unit): void
+    public function setUnit(string $unit): self
     {
         $this->unit = $unit;
+
+        return $this;
     }
 
     public function start(string $title = null): void
@@ -152,31 +156,21 @@ class ProgressBar
     {
         $str = '';
 
-        $days = $hours = $minutes = 0;
         if ($remainingSeconds > 86400) {
             $days = \ceil($remainingSeconds / 86400);
             $remainingSeconds %= 86400;
+            $str .= $days . 'd';
         }
 
         if ($remainingSeconds > 3600) {
             $hours = \ceil($remainingSeconds / 3600);
             $remainingSeconds %= 3600;
+            $str .= $hours . 'h';
         }
 
         if ($remainingSeconds > 60) {
             $minutes = \ceil($remainingSeconds / 60);
             $remainingSeconds %= 60;
-        }
-
-        if ($days > 0) {
-            $str .= $days . 'd';
-        }
-
-        if ($hours) {
-            $str .= $hours . 'h';
-        }
-
-        if ($minutes) {
             $str .= $minutes . 'm';
         }
 
