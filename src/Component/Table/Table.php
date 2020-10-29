@@ -130,7 +130,6 @@ class Table
             return $this;
         }
 
-        // $keys = array_keys($this->rows);
         $lastRowIdx = \count($this->rows) - 1;
 
         $this->rowIndex[$lastRowIdx] = 1;
@@ -223,10 +222,7 @@ class Table
         $out = $this->style->verticalBorderChar;
         $columnNumber = $this->getNumberOfColumns();
         for ($c = 0; $c < $columnNumber; $c++) {
-            $cell = '';
-            if (isset($row[$c])) {
-                $cell = $row[$c];
-            }
+            $cell = $row[$c] ?? '';
 
             $out .= $this->renderCell($c, $cell);
             $out .= $this->style->verticalBorderChar;
@@ -272,7 +268,7 @@ class Table
         return $out . "\n";
     }
 
-    public function renderHeader()
+    public function renderHeader(): string
     {
         $out = '';
 
@@ -283,22 +279,17 @@ class Table
         $out .= $this->style->verticalBorderChar;
         $columnNumber = $this->getNumberOfColumns();
         for ($c = 0; $c < $columnNumber; $c++) {
-            $cell = '';
-            if (isset($this->headers[$c])) {
-                $cell = $this->headers[$c];
-            }
+            $cell = $this->headers[$c] ?? '';
 
             $out .= $this->renderCell($c, $cell);
             $out .= $this->style->verticalBorderChar;
         }
-        $out .= "\n";
-        $out .= $this->renderSeparator();
 
-        return $out;
+        return $out . "\n" . $this->renderSeparator();
     }
 
 
-    public function getTableInnerWidth()
+    public function getTableInnerWidth(): int
     {
         $columnNumber = $this->getNumberOfColumns();
         $width = 0;
@@ -354,7 +345,6 @@ class Table
 
         $out = '';
 
-
         $out .= $this->style->verticalBorderChar;
         $columnNumber = $this->getNumberOfColumns();
         for ($c = 0; $c < $columnNumber; $c++) {
@@ -372,7 +362,7 @@ class Table
         return $out;
     }
 
-    public function render()
+    public function render(): string
     {
         $out = '';
 
