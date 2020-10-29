@@ -40,29 +40,18 @@ class ProgressBar
         if ($columns = \getenv('COLUMNS')) {
             $this->terminalWidth = (int) $columns;
         } elseif (PHP_OS_FAMILY === 'Windows') {
-            if (self::findCommand(';', 'powershell.exe')) {
-                $this->terminalWidth = (int) \exec('powershell $Host.UI.RawUI.WindowSize.Width');
-            } else {
-                $content = \shell_exec('mode');
-                \preg_match('/CON:(?:\n|.)*Columns:.*?(\d+)/', $content, $matches);
-                $this->terminalWidth = (int) $matches[1];
-            }
-        } elseif (self::findCommand(':', 'tput')) {
-            $this->terminalWidth = (int) \exec('tput cols');
-        }
-    }
-
-    private static function findCommand(string $split, string $file): bool
-    {
-        $paths = \explode($split, \getenv('PATH'));
-        foreach ($paths as $path) {
-            $bin = $path . DIRECTORY_SEPARATOR . $file;
-            if (\file_exists($bin) && \is_executable($bin)) {
-                return true;
+            $content = \shell_exec('mode CON');
+            \preg_match('/Columns:.*?(\d+)/', $content, $matches);
+            $this->terminalWidth = (int) $matches[1];
+        } else {
+            $paths = \explode(':', \getenv('PATH'));
+            foreach ($paths as $path) {
+                $bin = $path . DIRECTORY_SEPARATOR . 'tput';
+                if (\file_exists($bin) && \is_executable($bin)) {
+                    $this->terminalWidth = (int) \exec('tput cols');
+                }
             }
         }
-
-        return false;
     }
 
     public function setTitle(string $title): void
