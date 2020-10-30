@@ -43,7 +43,7 @@ class Argument
         $name = $this->getOptionName();
         $keys = $options->keys();
 
-        return in_array($name, $keys, true);
+        return \in_array($name, $keys, true);
     }
 
     /**
@@ -106,10 +106,10 @@ class Argument
     public function extractExtraFlagOptions(): array
     {
         $args = [];
-        for ($i = 2, $len = strlen($this->arg); $i < $len; ++$i) {
+        for ($i = 2, $len = \strlen($this->arg); $i < $len; ++$i) {
             $args[] = '-' . $this->arg[$i];
         }
-        $this->arg = substr($this->arg, 0, 2); # -[a-z]
+        $this->arg = \substr($this->arg, 0, 2); # -[a-z]
 
         return $args;
     }

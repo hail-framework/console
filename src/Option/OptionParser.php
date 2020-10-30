@@ -11,7 +11,6 @@
 
 namespace Hail\Console\Option;
 
-use Exception;
 use Hail\Console\Exception\InvalidOptionException;
 use Hail\Console\Exception\RequireValueException;
 
@@ -41,7 +40,7 @@ class OptionParser
      * @return int  next token consumed?
      * @throws RequireValueException
      */
-    protected function consumeOptionToken(Option $spec, $arg, $next)
+    protected function consumeOptionToken(Option $spec, Argument $arg, Argument $next): int
     {
         // Check options doesn't require next token before
         // all options that require values.
@@ -68,7 +67,7 @@ class OptionParser
 
             case $spec->isMultiple():
                 if ($next && !$next->isEmpty() && !$next->anyOfOptions($this->specs)) {
-                    $this->pushOptionValue($spec, $arg, $next);
+                    $this->pushOptionValue($spec, $next);
 
                     return 1;
                 }
@@ -88,7 +87,7 @@ class OptionParser
     /*
      * push value to multipl value option
      */
-    protected function pushOptionValue(Option $spec, $arg, $next)
+    protected function pushOptionValue(Option $spec, $next): void
     {
         if ($next && !$next->anyOfOptions($this->specs)) {
             $spec->pushValue($next->arg);
@@ -101,17 +100,17 @@ class OptionParser
      * - split option and option value
      * - separate arguments after "--"
      */
-    protected function preprocessingArguments(array $argv)
+    protected function preprocessingArguments(array $argv): array
     {
         // preprocessing arguments
-        $newArgv = [];
-        $extra = [];
+        $newArgv = $extra = [];
         $afterDash = false;
         foreach ($argv as $arg) {
             if ($arg === '--') {
                 $afterDash = true;
                 continue;
             }
+
             if ($afterDash) {
                 $extra[] = $arg;
                 continue;
@@ -120,7 +119,7 @@ class OptionParser
             $a = new Argument($arg);
             if ($a->anyOfOptions($this->specs) && $a->containsOptionValue()) {
                 [$opt, $val] = $a->splitAsOption();
-                array_push($newArgv, $opt, $val);
+                \array_push($newArgv, $opt, $val);
             } else {
                 $newArgv[] = $arg;
             }
@@ -129,7 +128,7 @@ class OptionParser
         return [$newArgv, $extra];
     }
 
-    protected function fillDefaultValues(OptionCollection $opts, OptionResult $result)
+    protected function fillDefaultValues(OptionCollection $opts, OptionResult $result): void
     {
         // register option result from options with default value
         foreach ($opts as $opt) {
@@ -141,33 +140,27 @@ class OptionParser
     }
 
     /**
-     * @param array $argv
-     *
-     * @return OptionResult|Option[]
-     *
      * @throws RequireValueException
      * @throws InvalidOptionException
-     * @throws \Exception
      */
-    public function parse(array $argv)
+    public function parse(array $argv): OptionResult
     {
         $result = new OptionResult();
 
         [$argv, $extra] = $this->preprocessingArguments($argv);
 
-        $len = count($argv);
+        $len = \count($argv);
 
         // some people might still pass only the option names here.
         $first = new Argument($argv[0]);
         if ($first->isOption()) {
-            throw new Exception('parse(argv) expects the first argument to be the program name.');
+            throw new \LogicException('parse(argv) expects the first argument to be the program name.');
         }
 
         for ($i = 1; $i < $len; ++$i) {
             $arg = new Argument($argv[$i]);
 
             // if looks like not an option, push it to argument list.
-            // TODO: we might want to support argument with preceding dash (?)
             if (!$arg->isOption()) {
                 $result->addArgument($arg);
                 continue;
@@ -177,23 +170,22 @@ class OptionParser
             //   split the string, and insert into the argv array
             if ($arg->withExtraFlagOptions()) {
                 $extra = $arg->extractExtraFlagOptions();
-                array_splice($argv, $i + 1, 0, $extra);
+                \array_splice($argv, $i + 1, 0, $extra);
                 $argv[$i] = $arg->arg; // update argument to current argv list.
-                $len = count($argv);   // update argv list length
+                $len = \count($argv);   // update argv list length
             }
 
             $next = null;
-            if ($i + 1 < count($argv)) {
+            if ($i + 1 < \count($argv)) {
                 $next = new Argument($argv[$i + 1]);
             }
 
             $spec = $this->specs->get($arg->getOptionName());
             if (!$spec) {
-                throw new InvalidOptionException('Invalid option: ' . $arg);
+                throw new InvalidOptionException('Invalid option: ' . $arg->__toString());
             }
 
-            // This if expr might be unnecessary, becase we have default mode - flag
-            // if ($spec->isRequired() || $spec->isMultiple() || $spec->isOptional() || $spec->isFlag()) {
+            // This if expr might be unnecessary, because we have default mode - flag
             $i += $this->consumeOptionToken($spec, $arg, $next);
             $result->set($spec->getId(), $spec);
         }

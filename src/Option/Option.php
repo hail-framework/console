@@ -90,7 +90,7 @@ class Option
      * @param string $specString
      * @throws InvalidArgumentException
      */
-    protected function initFromSpec(string $specString)
+    protected function initFromSpec(string $specString): void
     {
         $pattern = '/
         (
@@ -112,20 +112,18 @@ class Option
             throw new InvalidArgumentException('Incorrect spec string');
         }
 
-        // $orig = $regs[0];
         $name = $regs[1];
         $attributes = $regs[2] ?? null;
         $type = $regs[3] ?? null;
 
-        $short = null;
-        $long = null;
+        $short = $long = null;
 
         // check long,short option name.
-        if (strpos($name, '|') !== false) {
-            list($short, $long) = explode('|', $name);
-        } elseif (strlen($name) === 1) {
+        if (\strpos($name, '|') !== false) {
+            [$short, $long] = \explode('|', $name);
+        } elseif (($len = \strlen($name)) === 1) {
             $short = $name;
-        } elseif (strlen($name) > 1) {
+        } elseif ($len > 1) {
             $long = $name;
         }
 
@@ -133,17 +131,18 @@ class Option
         $this->long = $long;
 
         // option is required.
-        if (strpos($attributes, ':') !== false) {
+        if (\strpos($attributes, ':') !== false) {
             $this->required();
-        } elseif (strpos($attributes, '+') !== false) {
+        } elseif (\strpos($attributes, '+') !== false) {
             // option with multiple value
             $this->multiple();
-        } elseif (strpos($attributes, '?') !== false) {
-            // option is optional.(zero or one value)
+        } elseif (\strpos($attributes, '?') !== false) {
+            // option is optional. (zero or one value)
             $this->optional();
         } else {
             $this->flag();
         }
+
         if ($type) {
             $this->isa($type);
         }
@@ -160,14 +159,14 @@ class Option
     /**
      * To make -v, -vv, -vvv works.
      */
-    public function incremental()
+    public function incremental(): self
     {
         $this->incremental = true;
 
         return $this;
     }
 
-    public function required()
+    public function required(): self
     {
         $this->required = true;
 
@@ -181,14 +180,14 @@ class Option
      *
      * @return self
      */
-    public function defaultValue($value)
+    public function defaultValue($value): self
     {
         $this->defaultValue = $value;
 
         return $this;
     }
 
-    public function multiple()
+    public function multiple(): self
     {
         $this->multiple = true;
         $this->value = [];  # for value pushing
@@ -196,58 +195,58 @@ class Option
         return $this;
     }
 
-    public function optional()
+    public function optional(): self
     {
         $this->optional = true;
 
         return $this;
     }
 
-    public function flag()
+    public function flag(): self
     {
         $this->flag = true;
 
         return $this;
     }
 
-    public function trigger(callable $trigger)
+    public function trigger(callable $trigger): self
     {
         $this->trigger = $trigger;
 
         return $this;
     }
 
-    public function isIncremental()
+    public function isIncremental(): bool
     {
         return $this->incremental;
     }
 
-    public function isFlag()
+    public function isFlag(): bool
     {
         return $this->flag;
     }
 
-    public function isMultiple()
+    public function isMultiple(): bool
     {
         return $this->multiple;
     }
 
-    public function isRequired()
+    public function isRequired(): bool
     {
         return $this->required;
     }
 
-    public function isOptional()
+    public function isOptional(): bool
     {
         return $this->optional;
     }
 
-    public function isTypeNumber()
+    public function isNumber(): bool
     {
         return $this->isa === 'number' || $this->isa === 'int';
     }
 
-    public function isType($type)
+    public function isType(string $type): bool
     {
         return $this->isa === $type;
     }
@@ -256,7 +255,7 @@ class Option
     {
         $val = $value;
 
-        if ($isa = ucfirst($this->isa)) {
+        if ($isa = \ucfirst($this->isa)) {
             if (ValueType::test($isa, $value, $this->isaOption)) {
                 $val = ValueType::parse();
             } else {
@@ -274,10 +273,10 @@ class Option
 
         // check validValues
         if (
-            ($validValues = $this->getValidValues()) &&
-            !in_array($value, $validValues, true)
+            ($values = $this->getValidValues()) &&
+            !\in_array($value, $values, true)
         ) {
-            throw new InvalidOptionValueException('valid values are: ' . implode(', ', $validValues));
+            throw new InvalidOptionValueException('valid values are: ' . \implode(', ', $values));
         }
 
         if ($this->validator && !($this->validator)($value)) {
@@ -287,7 +286,7 @@ class Option
         return $val;
     }
 
-    protected function callTrigger()
+    protected function callTrigger(): void
     {
         if ($this->trigger && $ret = ($this->trigger)($this->value)) {
             $this->value = $ret;
@@ -297,7 +296,7 @@ class Option
     /*
      * set option value
      */
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->value = $this->validate($value);
         $this->callTrigger();
@@ -306,7 +305,7 @@ class Option
     /**
      * This method is for incremental option.
      */
-    public function increaseValue()
+    public function increaseValue(): void
     {
         if (!$this->value) {
             $this->value = 1;
@@ -321,15 +320,17 @@ class Option
      *
      * @param mixed
      */
-    public function pushValue($value)
+    public function pushValue($value): void
     {
         $this->value[] = $this->validate($value);
         $this->callTrigger();
     }
 
-    public function desc($desc)
+    public function desc(string $desc): self
     {
         $this->desc = $desc;
+
+        return $this;
     }
 
     /**
@@ -337,7 +338,7 @@ class Option
      *
      *   --name=<name>
      */
-    public function valueName($name)
+    public function valueName(string $name): self
     {
         $this->valueName = $name;
 
@@ -350,14 +351,14 @@ class Option
         if ($this->valueName) {
             $n = $this->valueName;
         } elseif ($values = $this->getValidValues()) {
-            $n = '(' . implode(',', $values) . ')';
+            $n = '(' . \implode(',', $values) . ')';
         } elseif ($values = $this->getSuggestions()) {
-            $n = '[' . implode(',', $values) . ']';
+            $n = '[' . \implode(',', $values) . ']';
         } elseif ($val = $this->getDefaultValue()) {
             // This allows for `0` and `false` values to be displayed also.
-            if (is_bool($val)) {
+            if (\is_bool($val)) {
                 $n = ($val ? 'true' : 'false');
-            } elseif (is_scalar($val) && strlen((string) $val)) {
+            } elseif (\is_scalar($val) && (string) $val !== '') {
                 $n = $val;
             }
         }
@@ -383,7 +384,7 @@ class Option
 
     public function getDefaultValue()
     {
-        if (is_callable($this->defaultValue)) {
+        if (\is_callable($this->defaultValue)) {
             return $this->defaultValue;
         }
 

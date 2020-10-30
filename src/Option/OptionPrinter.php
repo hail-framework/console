@@ -49,7 +49,7 @@ class OptionPrinter
                 . $this->renderOptionValueHint($opt, true);
         }
 
-        return implode(', ', $columns);
+        return \implode(', ', $columns);
     }
 
     /**
@@ -58,7 +58,7 @@ class OptionPrinter
      *
      * @return string
      */
-    public function renderOptionValueHint(Option $opt, $assign = true): string
+    public function renderOptionValueHint(Option $opt, bool $assign = true): string
     {
         $n = 'value';
         if ($opt->valueName) {
@@ -90,15 +90,14 @@ class OptionPrinter
      */
     public function render(OptionCollection $options): string
     {
-        # echo "* Available options:\n";
         $lines = [];
         foreach ($options as $option) {
             $c1 = $this->renderOption($option);
             $lines[] = "\t" . $c1;
-            $lines[] = wordwrap("\t\t" . $option->desc, $this->screenWidth, "\n\t\t");  # wrap text
+            $lines[] = \wordwrap("\t\t" . $option->desc, $this->screenWidth, "\n\t\t");  # wrap text
             $lines[] = '';
         }
 
-        return implode("\n", $lines);
+        return \implode("\n", $lines);
     }
 }

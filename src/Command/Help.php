@@ -14,6 +14,7 @@ namespace Hail\Console\Command;
 
 use Hail\Console\Command;
 use Hail\Console\CommandInterface;
+use Hail\Console\Exception\CommandNotFoundException;
 use Hail\Console\Option\OptionPrinter;
 
 class Help extends Command
@@ -66,16 +67,20 @@ class Help extends Command
      *
      * @param array ...$commandNames command name
      *
-     * @throws \Exception
+     * @throws CommandNotFoundException
      */
-    public function execute(...$commandNames)
+    public function execute(...$commandNames): void
     {
         $logger = $this->logger;
         $app = $this->getApplication();
-        $progname = basename($app->getProgramName());
+        if ($app === null) {
+            throw new \LogicException('Application not found');
+        }
+
+        $programName = \basename($app->getProgramName());
 
         // if there is no subcommand to render help, show all available commands.
-        $count = count($commandNames);
+        $count = \count($commandNames);
 
         if ($count) {
             $cmd = $app;
@@ -84,7 +89,7 @@ class Help extends Command
             }
 
             if (!$cmd) {
-                throw new \Exception('Command entry ' . implode(' ', $commandNames) . ' not found');
+                throw new \LogicException('Command entry ' . implode(' ', $commandNames) . ' not found');
             }
 
             if ($brief = $cmd->brief()) {
@@ -114,22 +119,22 @@ class Help extends Command
         } else {
             // print application
             $cmd = $this->parent;
-            $logger->writeln(ucfirst($cmd->brief()), 'strong_white');
+            $logger->writeln(\ucfirst($cmd->brief()), 'strong_white');
             $logger->newline();
 
             $this->printUsage($cmd);
 
             $logger->writeln('SYNOPSIS', 'yellow');
-            $logger->write("\t" . $progname);
+            $logger->write("\t" . $programName,);
             if (!empty($cmd->getOptionCollection()->options)) {
-                $logger->write(' [options]');
+                $logger->write(' [options]',);
             }
 
             if ($cmd->hasCommands()) {
-                $logger->write(' <command>');
+                $logger->write(' <command>',);
             } else {
                 foreach ($cmd->getArguments() as $argument) {
-                    $logger->write(' <' . $argument->name() . '>');
+                    $logger->write(' <' . $argument->name() . '>',);
                 }
             }
 
@@ -153,7 +158,7 @@ class Help extends Command
         }
     }
 
-    protected function printOptions(CommandInterface $cmd)
+    protected function printOptions(CommandInterface $cmd): void
     {
         $printer = OptionPrinter::getInstance();
 
@@ -177,7 +182,7 @@ class Help extends Command
         }
 
         // show "General commands" title if there are more than one groups
-        if ($this->getOption('dev') || count($ret['groups']) > 1) {
+        if ($this->getOption('dev') || \count($ret['groups']) > 1) {
             $logger->writeln('  <strong_white>General Commands</strong_white>');
 
             foreach ($ret['groups'] as $group) {
@@ -190,13 +195,13 @@ class Help extends Command
         }
     }
 
-    protected function printHelp(CommandInterface $cmd)
+    protected function printHelp(CommandInterface $cmd): void
     {
         if ($help = $cmd->help()) {
             $logger = $this->getOutput();
             $logger->writeln('HELP', 'yellow');
             $logger->writeln(
-                "\t" . implode("\n\t", explode("\n", $help))
+                "\t" . \implode("\n\t", \explode("\n", $help))
             );
         }
     }

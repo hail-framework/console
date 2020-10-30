@@ -156,7 +156,7 @@ class Application implements CommandInterface
      * @throws Exception\RequireValueException
      * @throws \ReflectionException
      */
-    public function run(array $argv)
+    public function run(array $argv): bool
     {
         $this->setProgramName($argv[0]);
 
@@ -185,7 +185,6 @@ class Application implements CommandInterface
             return false;
         }
 
-
         $commandStack = [];
         $arguments = [];
 
@@ -207,7 +206,6 @@ class Application implements CommandInterface
                 $parser->advance(); // advance position
 
                 // get command object of "$a"
-                /** @var CommandInterface $nextCommand */
                 $nextCommand = $currentCommand->getCommand($a);
 
                 $parser->setSpecs($nextCommand->getOptionCollection());
@@ -221,7 +219,7 @@ class Application implements CommandInterface
             } else {
                 $r = $parser->continueParse();
 
-                if (count($r)) {
+                if (\count($r)) {
                     // get the option result and merge the new result
                     $currentCommand->getOptions()->merge($r);
                 } else {
@@ -232,7 +230,6 @@ class Application implements CommandInterface
         }
 
         foreach ($commandStack as $cmd) {
-            /** @var CommandInterface $cmd */
             if (false === $cmd->prepare()) {
                 return false;
             }
@@ -240,14 +237,12 @@ class Application implements CommandInterface
 
         // get last command and run
         if ($lastCommand = array_pop($commandStack)) {
-
             $lastCommand->executeWrapper($arguments);
             $lastCommand->finish();
             while ($cmd = array_pop($commandStack)) {
                 // call finish stage.. of every command.
                 $cmd->finish();
             }
-
         } else {
             // no command specified.
             $this->executeWrapper($arguments);
@@ -324,11 +319,6 @@ class Application implements CommandInterface
     public function execute(...$arguments): void
     {
         $options = $this->getOptions();
-        if ($options->version) {
-            $this->logger->writeln($this->name());
-
-            return;
-        }
 
         // show list and help by default
         $help = $this->getCommand('help');

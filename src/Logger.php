@@ -77,7 +77,7 @@ class Logger implements LoggerInterface
         \fclose($this->stream);
     }
 
-    public function setLevel(?string $level)
+    public function setLevel(?string $level): self
     {
         if ($level === null) {
             $this->level = 9;
@@ -86,9 +86,11 @@ class Logger implements LoggerInterface
         if (isset($this->logLevels[$level])) {
             $this->level = $this->logLevels[$level];
         }
+
+        return $this;
     }
 
-    public function getLevel($level = null)
+    public function getLevel(string $level = null)
     {
         if ($level === null) {
             return $this->level;
@@ -97,28 +99,36 @@ class Logger implements LoggerInterface
         return $this->logLevels[$level] ?? null;
     }
 
-    public function setStream(resource $stream)
+    public function setStream(resource $stream): self
     {
         if ($this->stream !== null) {
             \fclose($this->stream);
         }
 
         $this->stream = $stream;
+
+        return $this;
     }
 
-    public function indent($level = 1)
+    public function indent(int $level = 1): self
     {
         $this->indent += $level;
+
+        return $this;
     }
 
-    public function unIndent($level = 1)
+    public function unIndent(int $level = 1): self
     {
         $this->indent = \max(0, $this->indent - $level);
+
+        return $this;
     }
 
-    public function resetIndent()
+    public function resetIndent(): self
     {
         $this->indent = 0;
+
+        return $this;
     }
 
     /**
@@ -130,7 +140,7 @@ class Logger implements LoggerInterface
      *
      * @return void
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         if (!isset($this->logLevels[$level])) {
             $level = LogLevel::DEBUG;
@@ -151,7 +161,7 @@ class Logger implements LoggerInterface
             $this->write(\str_repeat($this->indentCharacter, $this->indent));
         }
 
-        if (\is_object($message) || \is_array($message)) {
+        if (\is_array($message)) {
             $this->writeln(\print_r($message, true), $style);
         } else {
             $this->writeln($message, $style);
@@ -159,10 +169,12 @@ class Logger implements LoggerInterface
     }
 
     /**
-     * @param string $text text to write by `writer`
-     * @param string $style
+     * @param string      $text text to write by `writer`
+     * @param string|null $style
+     *
+     * @return Logger
      */
-    public function write($text, $style = null)
+    public function write(string $text, string $style = null): self
     {
         if ($style !== null) {
             $text = $this->formatter->format($text, $style);
@@ -171,59 +183,61 @@ class Logger implements LoggerInterface
         }
 
         \fwrite($this->stream, $text);
+
+        return $this;
     }
 
     /**
-     * @param string $text write text and append a newline charactor.
-     * @param string $style
+     * @param string      $text write text and append a newline character.
+     * @param string|null $style
+     *
+     * @return Logger
      */
-    public function writeln($text, $style = null)
+    public function writeln(string $text, string $style = null): self
     {
-        if ($style !== null) {
-            $text = $this->formatter->format($text, $style);
-        } else {
-            $text = $this->format($text);
-        }
-
-        \fwrite($this->stream, $text . "\n");
+        return $this->write($text, $style)->newline();
     }
 
     /**
      * Append a newline charactor to the console
      */
-    public function newline()
+    public function newline(): self
     {
         \fwrite($this->stream, "\n");
+
+        return $this;
     }
 
     /**
-     * @param \Exception $exception an exception to write to console.
+     * Write exception to console.
      */
-    public function logException(\Exception $exception)
+    public function logException(\Exception $exception): self
     {
         echo $exception->getMessage();
         $this->newline();
+
+        return $this;
     }
 
     public function format(string $text): string
     {
-        return \preg_replace_callback('#<(\w+)>(.*?)</\1>#i', function ($matches) {
-            [$raw, $style, $text] = $matches;
+        return \preg_replace_callback('#<(\w+)>(.*?)</\1>#', [$this, 'formatCallback'], $text);
+    }
 
-            switch ($style) {
-                case 'b':
-                    $style = 'bold';
-                    break;
-                case 'u':
-                    $style = 'underline';
-                    break;
-            }
+    private function formatCallback(array $matches): string
+    {
+        [$raw, $style, $text] = $matches;
 
-            if ($this->formatter->hasStyle($style)) {
-                return $this->formatter->format($text, $style);
-            }
+        if ($style === 'b') {
+            $style = 'bold';
+        } elseif ($style === 'u') {
+            $style = 'underline';
+        }
 
-            return $raw;
-        }, $text);
+        if ($this->formatter->hasStyle($style)) {
+            return $this->formatter->format($text, $style);
+        }
+
+        return $raw;
     }
 }

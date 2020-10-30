@@ -147,12 +147,13 @@ class ContinuousOptionParser extends OptionParser
     }
 
 
-    public function parse(array $argv)
+    public function parse(array $argv): OptionResult
     {
         // create new Result object.
         $result = new OptionResult();
+
         [$this->argv, $extra] = $this->preprocessingArguments($argv);
-        $this->length = count($this->argv);
+        $this->length = \count($this->argv);
 
         // from last parse index
         for (; $this->index < $this->length; ++$this->index) {

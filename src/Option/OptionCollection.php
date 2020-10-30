@@ -91,7 +91,7 @@ class OptionCollection implements IteratorAggregate, Countable
             return $spec;
         }
 
-        if (is_string($spec)) {
+        if (\is_string($spec)) {
             // parse spec string
             $spec = new Option($spec, $desc);
 
@@ -205,15 +205,15 @@ class OptionCollection implements IteratorAggregate, Countable
 
     public function keys()
     {
-        return array_merge(array_keys($this->longOptions), array_keys($this->shortOptions));
+        return array_merge(\array_keys($this->longOptions), \array_keys($this->shortOptions));
     }
 
     public function count()
     {
-        return count($this->data);
+        return \count($this->data);
     }
 
-    public function getIterator()
+    public function getIterator(): iterable
     {
         return new ArrayIterator($this->data);
     }

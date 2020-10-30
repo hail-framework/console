@@ -143,7 +143,7 @@ class ValueType
     protected static function fileInfo($check, $value): bool
     {
         if ($check) {
-            self::$parsed = function () use ($value) {
+            self::$parsed = static function () use ($value) {
                 return new \SplFileInfo($value);
             };
 

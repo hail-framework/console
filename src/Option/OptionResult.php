@@ -11,61 +11,55 @@
 
 namespace Hail\Console\Option;
 
-use ArrayIterator;
-use ArrayAccess;
-use IteratorAggregate;
-use Countable;
-
 /**
  * Define the getopt parsing result.
  */
-class OptionResult implements IteratorAggregate, ArrayAccess, Countable
+class OptionResult implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     /**
      * @var array option specs, key => Option object
      * */
     public $keys = [];
 
-    /* arguments */
     public $arguments = [];
 
-    public function getIterator()
+    public function getIterator(): iterable
     {
-        return new ArrayIterator($this->keys);
+        return new \ArrayIterator($this->keys);
     }
 
-    public function count()
+    public function count(): int
     {
-        return count($this->keys);
+        return \count($this->keys);
     }
 
-    public function merge(OptionResult $a)
+    public function merge(OptionResult $a): void
     {
         $this->keys = array_merge($this->keys, $a->keys);
         $this->arguments = array_merge($this->arguments, $a->arguments);
     }
 
-    public function __isset($key)
+    public function __isset(string $key): bool
     {
-        return isset($this->keys[$key]);
+        return $this->has($key);
     }
 
-    public function __get($key)
+    public function __get(string $key)
     {
         return $this->get($key);
     }
 
-    public function get($key)
+    public function get(string $key)
     {
         if (isset($this->keys[$key])) {
             return $this->keys[$key]->getValue();
         }
 
         // verifying if we got a camelCased key: http://stackoverflow.com/a/7599674/102960
-        //    get $options->baseDir as $option->{'base-dir'}
-        $parts = preg_split('/(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/', $key);
-        if (count($parts) > 1) {
-            $key = implode('-', array_map('strtolower', $parts));
+        // get $options->baseDir as $option->{'base-dir'}
+        $parts = \preg_split('/(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/', $key);
+        if (\count($parts) > 1) {
+            $key = \implode('-', \array_map('\strtolower', $parts));
         }
 
         if (isset($this->keys[$key])) {
@@ -75,52 +69,56 @@ class OptionResult implements IteratorAggregate, ArrayAccess, Countable
         return null;
     }
 
-    public function __set($key, $value)
+    public function __set(string $key, Option $value): void
     {
-        $this->keys[$key] = $value;
+        $this->set($key, $value);
     }
 
-    public function has($key)
+    public function has(string $key): bool
     {
         return isset($this->keys[$key]);
     }
 
-    public function set($key, Option $value)
+    public function set(string $key, Option $value): self
     {
         $this->keys[$key] = $value;
+
+        return $this;
     }
 
-    public function addArgument(Argument $arg)
+    public function addArgument(Argument $arg): self
     {
         $this->arguments[] = $arg;
+
+        return $this;
     }
 
-    public function getArguments()
+    public function getArguments(): array
     {
-        return array_map('strval', $this->arguments);
+        return \array_map('\strval', $this->arguments);
     }
 
     public function offsetSet($name, $value)
     {
-        $this->keys[$name] = $value;
+        return $this->set($name, $value);
     }
 
     public function offsetExists($name)
     {
-        return isset($this->keys[$name]);
+        return $this->has($name);
     }
 
     public function offsetGet($name)
     {
-        return $this->keys[$name];
+        return $this->get($name);
     }
 
     public function offsetUnset($name)
     {
-        unset($this->keys[$name]);
+        throw new \RuntimeException('Options can not unset');
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         $array = [];
         foreach ($this->keys as $key => $option) {
