@@ -3,7 +3,7 @@ namespace Hail\Console\Exception;
 
 use Hail\Console\CommandInterface;
 
-class CommandArgumentNotEnoughException extends CommandBaseException
+class CommandArgumentNotEnoughException extends CommandException
 {
     public $given;
 

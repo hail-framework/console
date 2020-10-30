@@ -3,7 +3,7 @@ namespace Hail\Console\Exception;
 
 use Hail\Console\Extension\AbstractExtension;
 
-class ExtensionException extends \Exception
+class ExtensionException extends \RuntimeException
 {
     protected $extension;
 

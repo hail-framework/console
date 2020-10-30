@@ -10,7 +10,6 @@ use Hail\Console\Exception\{
     UndefinedArgumentException,
     UndefinedOptionException
 };
-use InvalidArgumentException;
 
 class Meta extends Command
 {
@@ -59,7 +58,7 @@ class Meta extends Command
 
         // 'arg' or 'opt' require the argument name and attribute type
         if ($attr === null || (\in_array($type, ['arg', 'opt'], true) && $arg === null)) {
-            throw new InvalidArgumentException("'arg' or 'opt' require the attribute type.");
+            throw new \InvalidArgumentException("'arg' or 'opt' require the attribute type.");
         }
 
         try {

@@ -1,10 +1,9 @@
 <?php
 namespace Hail\Console\Exception;
 
-use Exception;
 use Hail\Console\CommandInterface;
 
-class CommandBaseException extends Exception
+class CommandException extends \RuntimeException
 {
     public $command;
 

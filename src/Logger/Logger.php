@@ -1,23 +1,17 @@
 <?php
 /*
- * This file is part of the CLIFramework package.
- *
+ * Some code from CLIFramework package.
  * (c) Yo-An Lin <cornelius.howl@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
  */
 
 namespace Hail\Console\Logger;
 
-use Hail\Singleton\SingletonTrait;
+use Hail\Console\Formatter;
 use Psr\Log\{LogLevel, LoggerTrait, LoggerInterface};
 
 class Logger implements LoggerInterface
 {
     use LoggerTrait;
-    use SingletonTrait;
 
     protected $logLevels = [
         LogLevel::EMERGENCY => 8,
@@ -64,15 +58,30 @@ class Logger implements LoggerInterface
      */
     private $stream;
 
-    protected function init(): void
+    protected static $instance;
+
+    /**
+     * @return static
+     */
+    final public static function getInstance(): self
+    {
+        return static::$instance = new static;
+    }
+
+    /**
+     * Singleton constructor.
+     */
+    public function __construct(resource $fd = null)
     {
         $this->formatter = Formatter::getInstance();
-        $this->stream = \fopen('php://output', 'wb');
+        $this->stream = $fd ?: \fopen('php://output', 'wb');
     }
 
     public function __destruct()
     {
-        \fclose($this->stream);
+        if ($this->stream) {
+            \fclose($this->stream);
+        }
     }
 
     public function setLevel(?string $level): self
@@ -99,13 +108,21 @@ class Logger implements LoggerInterface
 
     public function setStream(resource $stream): self
     {
-        if ($this->stream !== null) {
+        if ($this->stream) {
             \fclose($this->stream);
         }
 
         $this->stream = $stream;
 
         return $this;
+    }
+
+    public function withStream(resource $stream): self
+    {
+        $new = clone $this;
+        $new->setStream($stream);
+
+        return $new;
     }
 
     public function indent(int $level = 1): self
@@ -237,5 +254,10 @@ class Logger implements LoggerInterface
         }
 
         return $raw;
+    }
+
+    public function createAction(string $title, string $desc = '', string $status = 'waiting'): Action
+    {
+        return new Action($this->stream, $title, $desc, $status);
     }
 }

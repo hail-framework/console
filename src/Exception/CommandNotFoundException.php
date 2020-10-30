@@ -3,7 +3,7 @@ namespace Hail\Console\Exception;
 
 use Hail\Console\CommandInterface;
 
-class CommandNotFoundException extends CommandBaseException
+class CommandNotFoundException extends CommandException
 {
     public $name;
 

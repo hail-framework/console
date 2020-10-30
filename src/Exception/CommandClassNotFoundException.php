@@ -2,14 +2,12 @@
 
 namespace Hail\Console\Exception;
 
-use Exception;
-
 /**
  * Class CommandClassNotFoundException
  *
  * @package Hail\Console\Exception
  */
-class CommandClassNotFoundException extends Exception
+class CommandClassNotFoundException extends \RuntimeException
 {
     /**
      * CommandClassNotFoundException constructor.

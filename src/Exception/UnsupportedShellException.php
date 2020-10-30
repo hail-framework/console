@@ -3,7 +3,7 @@
 namespace Hail\Console\Exception;
 
 
-class UnsupportedShellException extends \Exception
+class UnsupportedShellException extends \RuntimeException
 {
 
 }

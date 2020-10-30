@@ -3,7 +3,7 @@
 namespace Hail\Console\Exception;
 
 
-class UndefinedArgumentException extends \Exception
+class UndefinedArgumentException extends \RuntimeException
 {
 
 }

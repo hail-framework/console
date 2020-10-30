@@ -11,8 +11,6 @@
 
 namespace Hail\Console\Exception;
 
-use Exception;
-
-class OptionConflictException extends Exception
+class OptionConflictException extends \RuntimeException
 {
 }

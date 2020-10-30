@@ -5,7 +5,7 @@ namespace Hail\Console\Exception;
 use Hail\Console\CommandInterface;
 use Hail\Console\Option\OptionCollection;
 
-class UndefinedOptionException extends \Exception
+class UndefinedOptionException extends \RuntimeException
 {
     /**
      * @var OptionCollection

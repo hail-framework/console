@@ -11,8 +11,6 @@
 
 namespace Hail\Console\Exception;
 
-use Exception;
-
-class InvalidOptionException extends Exception
+class InvalidOptionException extends \RuntimeException
 {
 }

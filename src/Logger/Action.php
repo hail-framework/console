@@ -4,7 +4,7 @@ namespace Hail\Console\Logger;
 
 use Hail\Console\Formatter;
 
-class LogAction
+class Action
 {
     public $title;
 
