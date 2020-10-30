@@ -61,12 +61,12 @@ class Application implements CommandInterface
     /**
      * @return string brief of this application
      */
-    public function brief()
+    public function brief(): string
     {
         return 'Hail-Framework Console';
     }
 
-    public function help()
+    public function help(): string
     {
         $progname = basename($this->getProgramName());
 
@@ -76,7 +76,7 @@ class Application implements CommandInterface
         );
     }
 
-    public function init()
+    public function init(): void
     {
         $this->addCommand(Help::class);
         $this->addCommandGroup('Development Commands', [
@@ -152,7 +152,6 @@ class Application implements CommandInterface
      *
      * @throws CommandArgumentNotEnoughException
      * @throws CommandNotFoundException
-     * @throws Exception\ExecuteMethodNotDefinedException
      * @throws Exception\InvalidOptionException
      * @throws Exception\RequireValueException
      * @throws \ReflectionException
@@ -266,7 +265,7 @@ class Application implements CommandInterface
      * This is a `before` trigger of an app. when the application is getting
      * started, we run `prepare` method to prepare the settings.
      */
-    public function prepare()
+    public function prepare(): void
     {
         $this->startedAt = microtime(true);
 
@@ -281,11 +280,9 @@ class Application implements CommandInterface
         } elseif ($this->config('verbose', false)) {
             $this->logger->setLevel(LogLevel::INFO);
         }
-
-        return true;
     }
 
-    public function finish()
+    public function finish(): void
     {
         if ($this->getOption('profile')) {
             $this->logger->notice(
@@ -321,7 +318,6 @@ class Application implements CommandInterface
      *
      * @throws CommandArgumentNotEnoughException
      * @throws CommandNotFoundException
-     * @throws Exception\ExecuteMethodNotDefinedException
      * @throws Exception\RequireValueException
      * @throws \ReflectionException
      */

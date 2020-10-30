@@ -42,7 +42,7 @@ class Corrector
         $bestSimilarity = -1;
         $bestGuess = $input;
         foreach ($possibleTokens as $possibleToken) {
-            similar_text($input, $possibleToken, $similarity);
+            \similar_text($input, $possibleToken, $similarity);
             if ($similarity > $bestSimilarity) {
                 $bestSimilarity = $similarity;
                 $bestGuess = $possibleToken;

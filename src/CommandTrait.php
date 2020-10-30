@@ -10,18 +10,18 @@
 
 namespace Hail\Console;
 
-use Hail\Console\Exception\RequireValueException;
-use InvalidArgumentException;
-use Hail\Console\Option\Option;
-use Hail\Console\Option\OptionCollection;
-use Hail\Console\Option\OptionResult;
+use Hail\Console\Option\{
+    Option,
+    OptionCollection,
+    OptionResult
+};
+use Hail\Console\Exception\{
+    RequireValueException,
+    CommandNotFoundException,
+    CommandArgumentNotEnoughException,
+    CommandClassNotFoundException
+};
 use Hail\Console\Component\Prompter;
-use Hail\Console\Exception\CommandNotFoundException;
-use Hail\Console\Exception\CommandArgumentNotEnoughException;
-use Hail\Console\Exception\CommandClassNotFoundException;
-use Hail\Console\Exception\ExecuteMethodNotDefinedException;
-
-use Hail\Console\Command\Help;
 
 /**
  * Command based class (application & subcommands inherit from this class)
@@ -57,9 +57,9 @@ trait CommandTrait
     private $optionSpecs;
 
     /**
-     * Parent commmand object. (the command caller)
+     * Parent command object. (the command caller)
      *
-     * @var Command|Application
+     * @var CommandInterface
      */
     public $parent;
 
@@ -150,17 +150,7 @@ trait CommandTrait
         return $this->prompter;
     }
 
-    /**
-     * Add a command group and register the commands automatically
-     *
-     * @param string $groupName The group name
-     * @param array  $commands  Command array combines indexed command names or command class assoc array.
-     *
-     * @return CommandGroup
-     *
-     * @throws CommandClassNotFoundException
-     */
-    public function addCommandGroup($groupName, $commands = [])
+    public function addCommandGroup(string $groupName, array $commands = []): CommandGroup
     {
         $group = new CommandGroup($groupName);
         foreach ($commands as $val) {
@@ -172,14 +162,9 @@ trait CommandTrait
         return $group;
     }
 
-    public function getCommandGroups()
+    public function getCommandGroups(): array
     {
         return $this->commandGroups;
-    }
-
-    public function isApplication(): bool
-    {
-        return $this instanceof Application;
     }
 
     /**
@@ -217,20 +202,19 @@ trait CommandTrait
      *          $this->addArgument('debug',  'Debug messages');
      *      }
      */
-    public function init()
+    public function init(): void
     {
         CommandLoader::autoload($this);
     }
 
-    /**
-     * @param Application|Command $parent
-     */
-    public function setParent($parent)
+    public function setParent(CommandInterface $parent): self
     {
         $this->parent = $parent;
+
+        return $this;
     }
 
-    public function getParent()
+    public function getParent(): CommandInterface
     {
         return $this->parent;
     }
@@ -246,10 +230,10 @@ trait CommandTrait
      *
      * @param string $class Full-qualified Class name
      *
-     * @return Command Loaded class name
+     * @return CommandInterface Loaded class name
      * @throws CommandClassNotFoundException
      */
-    public function addCommand(string $class = null): Command
+    public function addCommand(string $class = null): CommandInterface
     {
         $realClass = CommandLoader::load($class);
         if ($realClass === null) {
@@ -263,15 +247,7 @@ trait CommandTrait
         return $cmd;
     }
 
-
-    /**
-     * getAllCommandPrototype() method is used for returning command prototype in string.
-     *
-     * Very useful when user entered command with wrong argument or format.
-     *
-     * @return array
-     */
-    public function getAllCommandPrototype()
+    public function getAllCommandPrototype(): array
     {
         $lines = [];
 
@@ -288,13 +264,12 @@ trait CommandTrait
         return $lines;
     }
 
-    public function getCommandPrototype()
+    public function getCommandPrototype(): string
     {
         $out = [];
 
         $out[] = basename($this->getApplication()->getProgramName());
 
-        // $out[] = $this->name();
         foreach ($this->getCommandNameTraceArray() as $n) {
             $out[] = $n;
         }
@@ -310,62 +285,46 @@ trait CommandTrait
             }
         }
 
-        return implode(' ', $out);
+        return \implode(' ', $out);
     }
 
 
     /**
      * connectCommand connects a command name with a command object.
      *
-     * @param Command $cmd
+     * @param CommandInterface $cmd
      */
-    public function connectCommand(Command $cmd)
+    public function connectCommand(CommandInterface $cmd)
     {
         $name = $cmd->name();
         $this->commands[$name] = $cmd;
 
-        // regsiter command aliases to the alias table.
-        $aliases = $cmd->aliases();
-        if (is_string($aliases)) {
-            $aliases = preg_split('/\s+/', $aliases);
-        }
-
-        if (!is_array($aliases)) {
-            throw new InvalidArgumentException('Aliases needs to be an array or a space-separated string.');
-        }
-
-        foreach ($aliases as $alias) {
+        // register command aliases to the alias table.
+        foreach ($cmd->aliases() as $alias) {
             $this->aliases[$alias] = $cmd;
         }
     }
 
-
-    /**
-     * Aggregate command info
-     */
-    public function aggregate()
+    public function aggregate(): array
     {
-        $commands = [];
-        foreach ($this->getVisibleCommands() as $name => $cmd) {
-            $commands[$name] = $cmd;
-        }
+        $commands = $this->getVisibleCommands();
 
-        foreach ($this->commandGroups as $g) {
+        $dev = null;
+        foreach ($this->commandGroups as $index => $g) {
             if ($g->isHidden) {
                 continue;
             }
+
             foreach ($g->getCommands() as $name => $cmd) {
                 unset($commands[$name]);
             }
-        }
 
-        uasort($this->commandGroups, function ($a, $b) {
-            if ($a->getId() === 'dev') {
-                return 1;
+            if ($g->getId() === 'dev') {
+                $dev = $g;
+                unset($this->commandGroups[$index]);
             }
-
-            return 0;
-        });
+        }
+        $this->commandGroups[] = $dev;
 
         return [
             'groups' => $this->commandGroups,
@@ -373,46 +332,21 @@ trait CommandTrait
         ];
     }
 
-
-    /**
-     * Return true if this command has subcommands.
-     *
-     * @return bool
-     */
     public function hasCommands(): bool
     {
         return !empty($this->commands);
     }
 
-    /**
-     * Check if a command name is registered in this application / command object.
-     *
-     * @param string $command command name
-     *
-     * @return bool
-     */
     public function hasCommand(string $command): bool
     {
         return isset($this->commands[$command]) || isset($this->aliases[$command]);
     }
 
-    /**
-     * Get command name list
-     *
-     * @return array command name list
-     */
-    public function getCommandList()
+    public function getCommandList(): array
     {
-        return array_keys($this->commands);
+        return \array_keys($this->commands);
     }
 
-
-    /**
-     * Some commands are not visible. when user runs 'help', we should just
-     * show them these visible commands
-     *
-     * @return string[] CommandBase command map
-     */
     public function getVisibleCommands(): array
     {
         $commands = [];
@@ -427,25 +361,12 @@ trait CommandTrait
         return $commands;
     }
 
-
-    /**
-     * Command names start with understore are hidden command. we ignore the
-     * commands.
-     *
-     * @return string[]
-     */
     public function getVisibleCommandList(): array
     {
-        return array_keys($this->getVisibleCommands());
+        return \array_keys($this->getVisibleCommands());
     }
 
-
-    /**
-     * Return the command name stack
-     *
-     * @return string[]
-     */
-    public function getCommandNameTraceArray()
+    public function getCommandNameTraceArray(): array
     {
         $cmdStacks = [$this->name()];
         $p = $this->parent;
@@ -456,35 +377,20 @@ trait CommandTrait
             $p = $p->parent;
         }
 
-        return array_reverse($cmdStacks);
+        return\array_reverse($cmdStacks);
     }
 
-    public function getSignature()
+    public function getSignature(): string
     {
-        return implode('.', $this->getCommandNameTraceArray());
+        return \implode('.', $this->getCommandNameTraceArray());
     }
 
-
-    /**
-     * Return the objects of all sub commands.
-     *
-     * @return Command[]
-     */
-    public function getCommands()
+    public function getCommands(): array
     {
         return $this->commands;
     }
 
-    /**
-     * Get subcommand object from current command
-     * by command name.
-     *
-     * @param string $command
-     *
-     * @return Command initialized command object.
-     * @throws CommandNotFoundException
-     */
-    public function getCommand($command): Command
+    public function getCommand(string $command): CommandInterface
     {
         if (isset($this->aliases[$command])) {
             return $this->aliases[$command];
@@ -497,32 +403,27 @@ trait CommandTrait
         throw new CommandNotFoundException($this, $command);
     }
 
-    public function guessCommand($commandName)
+    public function guessCommand(string $commandName): string
     {
         // array of words to check against
-        $words = array_keys($this->commands);
+        $words = \array_keys($this->commands);
 
         return Corrector::correct($commandName, $words);
     }
 
-
-    /**
-     * Create and initialize command object.
-     *
-     * @param string $class Command class.
-     *
-     * @return Command command object.
-     */
-    public function createCommand(string $class): Command
+    public function createCommand(string $class): CommandInterface
     {
-        /** @var Command $cmd */
+        if (!\is_a($class, CommandInterface::class, true)) {
+            throw new CommandClassNotFoundException($class);
+        }
+
         $cmd = new $class($this);
         $cmd->init();
 
         return $cmd;
     }
 
-    public function setLogger($logger)
+    public function setLogger(Logger $logger): self
     {
         $this->logger = $logger;
 
@@ -601,7 +502,7 @@ trait CommandTrait
     /**
      * Finalize stage method
      */
-    public function finish()
+    public function finish(): void
     {
         foreach ($this->extensions as $extension) {
             $extension->finish();
@@ -648,12 +549,6 @@ trait CommandTrait
         return $argument->getValue();
     }
 
-    /**
-     * Return the defined argument info objects.
-     *
-     * @return Argument[]
-     * @throws ExecuteMethodNotDefinedException
-     */
     public function getArguments(): array
     {
         // if user not define any arguments, get argument info from method parameters
@@ -661,10 +556,6 @@ trait CommandTrait
             $this->arguments = [];
 
             $ro = new \ReflectionObject($this);
-            if (!$ro->hasMethod('execute')) {
-                throw new ExecuteMethodNotDefinedException($this);
-            }
-
             $method = $ro->getMethod('execute');
             $parameters = $method->getParameters();
 
@@ -692,20 +583,11 @@ trait CommandTrait
      * @param array $args command argument list (not associative array).
      *
      * @throws CommandArgumentNotEnoughException
-     * @throws ExecuteMethodNotDefinedException
      * @throws RequireValueException
      * @throws \ReflectionException
      */
-    public function executeWrapper(array $args)
+    public function executeWrapper(array $args): void
     {
-        if (!method_exists($this, 'execute')) {
-            $cmd = $this->createCommand(Help::class);
-
-            $cmd->executeWrapper([$this->name()]);
-
-            return;
-        }
-
         // Validating arguments
         foreach ($this->getArguments() as $k => $argument) {
             if (!isset($args[$k])) {
@@ -728,7 +610,7 @@ trait CommandTrait
         $refMethod = new \ReflectionMethod($this, 'execute');
         $requiredNumber = $refMethod->getNumberOfRequiredParameters();
 
-        $count = count($args);
+        $count = \count($args);
         if ($count < $requiredNumber) {
             throw new CommandArgumentNotEnoughException($this, $count, $requiredNumber);
         }

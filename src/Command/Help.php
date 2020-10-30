@@ -26,7 +26,7 @@ class Help extends Command
         return 'Show help message of a command';
     }
 
-    public function init()
+    public function init(): void
     {
         $this->addOption('dev', 'Show development commands');
     }

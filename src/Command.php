@@ -59,11 +59,6 @@ abstract class Command implements CommandInterface
         return null;
     }
 
-    public function hasApplication()
-    {
-        return $this->getApplication() !== null;
-    }
-
     /**
      * Register and bind the extension
      *
@@ -71,13 +66,15 @@ abstract class Command implements CommandInterface
      *
      * @throws ExtensionException
      */
-    public function addExtension(AbstractExtension $extension)
+    public function addExtension(AbstractExtension $extension): self
     {
         if (!$extension->isAvailable()) {
-            throw new ExtensionException('Extension ' . get_class($extension) . ' is not available', $extension);
+            throw new ExtensionException('Extension ' . \get_class($extension) . ' is not available', $extension);
         }
 
         $this->extensions[] = $extension->bind($this);
+
+        return $this;
     }
 
     /**
@@ -87,12 +84,16 @@ abstract class Command implements CommandInterface
      *
      * @throws ExtensionException
      */
-    public function extension($extension)
+    public function extension($extension): void
     {
-        if (is_string($extension)) {
-            $extension = new $extension;
+        if (\is_string($extension)) {
+            if (!is_a($extension, AbstractExtension::class, true)) {
+                throw new ExtensionException('Not an extension class name.');
+            }
+
+            $extension = new $extension();
         } elseif (!$extension instanceof AbstractExtension) {
-            throw new \LogicException('Not an extension object or an extension class name.');
+            throw new ExtensionException('Not an extension object.');
         }
 
         $this->addExtension($extension);

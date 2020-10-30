@@ -53,13 +53,13 @@ class CommandLoader
     /**
      * Add all commands in a directory to parent command
      *
-     * @param Command $parent object we want to load its commands/subcommands
+     * @param CommandInterface $parent object we want to load its commands/subcommands
      *
      * @return void
      * @throws CommandClassNotFoundException
      * @throws \ReflectionException
      */
-    public static function autoload(Command $parent)
+    public static function autoload(CommandInterface $parent): void
     {
         $reflector = new \ReflectionObject($parent);
         $dir = \dirname($reflector->getFileName()) . '/';
@@ -71,7 +71,7 @@ class CommandLoader
          *      within App/Command/Foo/ directory, if App/Command/Foo/ directory
          *      not exists found in App/Command/Command/ directory.
          */
-        if ($parent->isApplication()) {
+        if ($parent instanceof Application) {
             $subNamespace = 'Command';
         } else {
             $subNamespace = static::clearSuffix(
@@ -88,7 +88,7 @@ class CommandLoader
             return;
         }
 
-        $classes = static::scanPhp($dir);
+        $classes = self::scanPhp($dir);
         $namespace = '\\' . $reflector->getNamespaceName() . '\\' . $subNamespace;
 
         foreach ($classes as $class) {
@@ -101,7 +101,7 @@ class CommandLoader
         }
     }
 
-    private static function scanPhp($path)
+    private static function scanPhp(string $path): array
     {
         if (!\is_dir($path)) {
             return [];

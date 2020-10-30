@@ -48,11 +48,16 @@ abstract class AbstractExtension
 
     protected function getApplicationOption($key)
     {
-        if (!$this->command || !$this->command->hasApplication()) {
+        if (!$this->command) {
             return null;
         }
 
-        return $this->command->getApplication()->getOption($key);
+        $app = $this->command->getApplication();
+        if ($app === null) {
+            return null;
+        }
+
+        return $app->getOption($key);
     }
 
     public function getCommandOption($key)

@@ -170,18 +170,4 @@ class DaemonExtension extends AbstractExtension
 
         return $this->getApplicationOption('log-path') ?: null;
     }
-
-    protected function getApplicationOption($key)
-    {
-        if (!$this->hasApplication()) {
-            return null;
-        }
-
-        return $this->getCommand()->getApplication()->getOption($key);
-    }
-
-    private function hasApplication()
-    {
-        return $this->getCommand() && $this->getCommand()->hasApplication();
-    }
 }

@@ -25,7 +25,7 @@ class Phar extends Command
         return 'compile current source into Phar format library file.';
     }
 
-    public function init()
+    public function init(): void
     {
         // optional classloader script (use Universal ClassLoader by default
         $this->addOption('classloader?', 'embed classloader source file');
@@ -42,7 +42,7 @@ class Phar extends Command
     }
 
 
-    public function execute()
+    public function execute(): void
     {
         ini_set('phar.readonly', 0);
 

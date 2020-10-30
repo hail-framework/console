@@ -74,12 +74,10 @@ class Argument
             throw new \InvalidArgumentException('Incorrect spec string');
         }
 
-        // $orig = $regs[0];
-        $name = $regs[1];
+        $this->name = $regs[1];
         $attributes = $regs[2] ?? null;
         $type = $regs[3] ?? null;
 
-        $this->name = $name;
 
         // option is required.
         if (\strpos($attributes, '+') !== false) {
@@ -149,9 +147,9 @@ class Argument
         return $this;
     }
 
-    public function validator(callable $cb): self
+    public function validator(callable $fun): self
     {
-        $this->validator = $cb;
+        $this->validator = $fun;
 
         return $this;
     }
@@ -174,9 +172,9 @@ class Argument
     /**
      * Specify argument glob pattern
      */
-    public function glob(string $g): self
+    public function glob(string $glob): self
     {
-        $this->glob = $g;
+        $this->glob = $glob;
 
         return $this;
     }
@@ -212,8 +210,8 @@ class Argument
         }
 
         if (
-            ($validValues = $this->getValidValues()) &&
-            !\in_array($value, $validValues, true)
+            ($values = $this->getValidValues()) &&
+            !\in_array($value, $values, true)
         ) {
             return false;
         }

@@ -19,7 +19,7 @@ class Meta extends Command
         return 'Return the meta data of a commands.';
     }
 
-    public function init()
+    public function init(): void
     {
         $this->addOption('flat', 'flat list format. work for both zsh and bash.');
         $this->addOption('zsh', 'output for zsh');

@@ -27,13 +27,13 @@ class ZshCompletion extends Command
         return 'This function generate a zsh-completion script automatically';
     }
 
-    public function init()
+    public function init(): void
     {
         $this->addOption('bind:', 'bind complete to command');
         $this->addOption('program:', 'program name');
     }
 
-    public function execute()
+    public function execute(): void
     {
         $programName = $this->getOption('program') ?: $this->getApplication()->getProgramName();
         $bind = $this->getOption('bind') ?: $programName;
