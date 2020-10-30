@@ -178,9 +178,9 @@ class ZshGenerator
                         break;
                 }
 
-//                if (isset($opt->glob)) {
-//                    $str .= ' -g "' . $opt->glob . '"';
-//                }
+                if (!empty($opt->isaOption)) {
+                    $str .= ' -g "' . $opt->isaOption . '"';
+                }
             }
         }
 

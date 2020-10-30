@@ -457,7 +457,7 @@ class Option
      *
      * @return self
      */
-    public function isa($type, $option = null)
+    public function isa(string $type, string $option = null): self
     {
         // "bool" was kept for backward compatibility
         if ($type === 'bool') {
