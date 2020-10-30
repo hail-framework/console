@@ -24,7 +24,7 @@ class Console
 
         echo $prompt;
 
-        return self::standardRead();
+        return self::read();
     }
 
     /**
@@ -47,7 +47,7 @@ class Console
         echo $prompt;
 
         return Stty::withoutEcho(
-            \Closure::fromCallable('self::standardRead')
+            \Closure::fromCallable('self::read')
         );
     }
 
@@ -58,7 +58,7 @@ class Console
         }
     }
 
-    protected static function standardRead(): string
+    protected static function read(): string
     {
         return \rtrim(\fgets(STDIN), "\n");
     }
