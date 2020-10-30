@@ -54,34 +54,27 @@ class ZshGenerator
         return $visible;
     }
 
-    public function commandDescArray(array $cmds)
+    public function describeCommands(array $cmds, int $level = 0): Buffer
     {
-        $args = [];
+        $buf = new Buffer();
+        $buf->setIndent($level)
+            ->appendLine('local commands; commands=(')
+            ->indent();
+
         foreach ($cmds as $name => $cmd) {
             if (strpos($name, '_') === 0) {
                 continue;
             }
-            $args[] = "$name:" . Util::q($cmd->brief());
+
+            $buf->appendIndent()
+                ->append("$name:")
+                ->appendSingleQuote($cmd->brief())
+                ->newLine();
         }
 
-        return $args;
-    }
-
-
-    public function describeCommands(array $cmds, $level = 0)
-    {
-        $buf = new Buffer();
-        $buf->setIndent($level);
-        $buf->appendLine('local commands; commands=(');
-        $buf->indent();
-        $buf->appendLines(
-            $this->commandDescArray($cmds)
-        );
-        $buf->unIndent();
-        $buf->appendLine(')');
-        $buf->appendLine('_describe -t commands \'command\' commands && ret=0');
-
-        return $buf;
+        return $buf->unIndent()
+            ->appendLine(')')
+            ->appendLine('_describe -t commands \'command\' commands && ret=0');
     }
 
 
@@ -105,7 +98,7 @@ class ZshGenerator
     public function optionFlagItem(Option $opt, $cmdSignature)
     {
         // TODO: Check conflict options
-        $str = "";
+        $str = '';
 
         $optspec = $opt->flag || $opt->optional ? '' : '=';
         $optName = $opt->long ? $opt->long : $opt->short;
@@ -172,7 +165,7 @@ class ZshGenerator
                         $str .= ':(' . implode(' ', Util::array_qq($values)) . ')';
                     }
                 }
-            } elseif (in_array($opt->isa, ['file', 'dir', 'path'], true)) {
+            } elseif (\in_array($opt->isa, ['file', 'dir', 'path'], true)) {
                 switch ($opt->isa) {
                     case 'file':
                         $str .= ':_files';
@@ -185,9 +178,9 @@ class ZshGenerator
                         break;
                 }
 
-                if (isset($opt->glob)) {
-                    $str .= ' -g "' . $opt->glob . '"';
-                }
+//                if (isset($opt->glob)) {
+//                    $str .= ' -g "' . $opt->glob . '"';
+//                }
             }
         }
 
@@ -203,7 +196,7 @@ class ZshGenerator
      *
      *  "*:args:{ _alternative ':importpaths:__go_list' ':files:_path_files -g \"*.go\"' }"
      */
-    public function command_args(CommandInterface $cmd, $cmdSignature)
+    private function commandArgs(CommandInterface $cmd, $cmdSignature): ?array
     {
         $args = [];
         $arguments = $cmd->getArguments();
@@ -225,8 +218,8 @@ class ZshGenerator
 
             if ($a->validValues || $a->suggestions) {
                 if ($a->validValues) {
-                    if (is_callable($a->validValues)) {
-                        $comp .= ':{' . implode(' ', [
+                    if (\is_callable($a->validValues)) {
+                        $comp .= ':{' . \implode(' ', [
                                 $this->meta_command_name(),
                                 Util::qq($a->name),
                                 $cmdSignature,
@@ -238,7 +231,7 @@ class ZshGenerator
                         $comp .= ':(' . implode(' ', Util::array_qq($values)) . ')';
                     }
                 } elseif ($a->suggestions) {
-                    if (is_callable($a->suggestions)) {
+                    if (\is_callable($a->suggestions)) {
                         $comp .= ':{' . implode(' ', [
                                 $this->meta_command_name(),
                                 Util::qq($a->name),
@@ -251,7 +244,7 @@ class ZshGenerator
                         $comp .= ':(' . implode(' ', Util::array_qq($values)) . ')';
                     }
                 }
-            } elseif (in_array($a->isa, ['file', 'path', 'dir'], true)) {
+            } elseif (\in_array($a->isa, ['file', 'path', 'dir'], true)) {
                 switch ($a->isa) {
                     case 'file':
                         $comp .= ':_files';
@@ -263,11 +256,13 @@ class ZshGenerator
                         $comp .= ':_directories';
                         break;
                 }
+
                 if ($a->glob) {
                     $comp .= " -g \"{$a->glob}\"";
                 }
             }
-            $args[] = Util::q($comp);
+
+            $args[] = $comp;
             $idx++;
         }
 
@@ -278,15 +273,14 @@ class ZshGenerator
     /**
      * Complete commands with options and its arguments (without subcommands)
      */
-    public function complete_command_options_arguments(CommandInterface $subcmd, $level = 1)
+    public function complete_command_options_arguments(CommandInterface $subcmd, int $level = 1): string
     {
         $cmdSignature = $subcmd->getSignature();
-
 
         $buf = new Buffer();
         $buf->setIndent($level);
 
-        $args = $this->command_args($subcmd, $cmdSignature);
+        $args = $this->commandArgs($subcmd, $cmdSignature);
         $flags = $this->commandFlags($subcmd, $cmdSignature);
 
         if ($flags || $args) {
@@ -298,11 +292,16 @@ class ZshGenerator
                     $buf->appendLine("$line \\");
                 }
             }
+
             if ($args) {
                 foreach ($args as $line) {
-                    $buf->appendLine("$line \\");
+                    $buf->appendIndent()
+                        ->appendSingleQuote($line)
+                        ->append(' \\')
+                        ->newLine();
                 }
             }
+
             $buf->appendLine(' && ret=0');
             $buf->unIndent();
         }

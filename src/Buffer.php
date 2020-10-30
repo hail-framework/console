@@ -17,10 +17,12 @@ class Buffer
         $this->content = $content;
     }
 
-    public function indent(): void
+    public function indent(): self
     {
         $this->indent++;
         $this->updateIndentCache();
+
+        return $this;
     }
 
     /**
@@ -28,12 +30,14 @@ class Buffer
      *
      * @param int $indent
      */
-    public function setIndent(int $indent): void
+    public function setIndent(int $indent): self
     {
         if ($this->indent !== $indent) {
             $this->indent = $indent;
             $this->updateIndentCache();
         }
+
+        return $this;
     }
 
     /**
@@ -46,9 +50,11 @@ class Buffer
         return $this->indent;
     }
 
-    public function setIndentChar(string $char): void
+    public function setIndentChar(string $char): self
     {
         $this->indentChar = $char;
+
+        return $this;
     }
 
     public function getIndentChar(): string
@@ -56,17 +62,21 @@ class Buffer
         return $this->indentChar;
     }
 
-    public function unIndent(): void
+    public function unIndent(): self
     {
         if ($this->indent > 0) {
             $this->indent--;
             $this->updateIndentCache();
         }
+
+        return $this;
     }
 
-    private function updateIndentCache(): void
+    private function updateIndentCache(): self
     {
         $this->indentCache = $this->makeIndent($this->indent);
+
+        return $this;
     }
 
     private function makeIndent(int $level): string
@@ -79,9 +89,18 @@ class Buffer
      *
      * @param string $text
      */
-    public function append(string $text): void
+    public function append(string $text): self
     {
         $this->content .= $text;
+
+        return $this;
+    }
+
+    public function appendIndent(int $indent = 0): self
+    {
+        $this->content .= ($indent ? $this->makeIndent($indent) : $this->indentCache);
+
+        return $this;
     }
 
     /**
@@ -90,9 +109,11 @@ class Buffer
      * @param string $line
      * @param int    $indent
      */
-    public function appendLine(string $line, int $indent = 0): void
+    public function appendLine(string $line, int $indent = 0): self
     {
         $this->content .= ($indent ? $this->makeIndent($indent) : $this->indentCache) . $line . "\n";
+
+        return $this;
     }
 
     /**
@@ -101,11 +122,13 @@ class Buffer
      * @param string[] $lines
      * @param int      $indent
      */
-    public function appendLines(array $lines, int $indent = 0): void
+    public function appendLines(array $lines, int $indent = 0): self
     {
         foreach ($lines as $line) {
             $this->appendLine($line, $indent);
         }
+
+        return $this;
     }
 
     /**
@@ -114,13 +137,15 @@ class Buffer
      * @param string      $line
      * @param string|null $charlist
      */
-    public function appendEscape(string $line, string $charlist = null): void
+    public function appendEscape(string $line, string $charlist = null): self
     {
         if ($charlist === null) {
             $this->content .= \addslashes($line);
         } else {
             $this->content .= \addcslashes($line, $charlist);
         }
+
+        return $this;
     }
 
     /**
@@ -128,9 +153,11 @@ class Buffer
      *
      * @param string $str
      */
-    public function appendQuote(string $str): void
+    public function appendQuote(string $str): self
     {
         $this->content .= '"' . \addcslashes($str, '"') . '"';
+
+        return $this;
     }
 
     /**
@@ -138,17 +165,21 @@ class Buffer
      *
      * @param string $str
      */
-    public function appendSingleQuote(string $str): void
+    public function appendSingleQuote(string $str): self
     {
-        $this->content .= "'" . \addslashes($str) . "'";
+        $this->content .= "'" . \addcslashes($str, "'") . "'";
+
+        return $this;
     }
 
     /**
      * Append a new line to the buffer
      */
-    public function newLine(): void
+    public function newLine(): self
     {
         $this->content .= "\n";
+
+        return $this;
     }
 
     /**
@@ -157,12 +188,14 @@ class Buffer
      * @param string $block
      * @param int    $indent = 0
      */
-    public function appendBlock(string $block, int $indent = 0): void
+    public function appendBlock(string $block, int $indent = 0): self
     {
         $lines = \explode("\n", $block);
         foreach ($lines as $line) {
             $this->appendLine($line, $indent);
         }
+
+        return $this;
     }
 
     /**
@@ -171,7 +204,7 @@ class Buffer
      * @param Buffer $buf
      * @param int    $indent = 0
      */
-    public function appendBuffer(Buffer $buf, int $indent = 0): void
+    public function appendBuffer(Buffer $buf, int $indent = 0): self
     {
         if ($indent) {
             $this->setIndent($indent);
@@ -182,6 +215,8 @@ class Buffer
         } else {
             $this->content .= $buf->__toString();
         }
+
+        return $this;
     }
 
     /**
