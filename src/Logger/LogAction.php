@@ -2,6 +2,8 @@
 
 namespace Hail\Console\Logger;
 
+use Hail\Console\Formatter;
+
 class LogAction
 {
     public $title;
@@ -10,50 +12,60 @@ class LogAction
 
     public $status;
 
-    protected $logger;
+    protected $fd;
+
+    protected $formatter;
 
     protected $actionColumnWidth = 38;
 
-    public function __construct(ActionLogger $logger, string $title, string $desc, string $status = 'waiting')
+    public function __construct(resource $fd, string $title, string $desc, string $status = 'waiting')
     {
-        $this->logger = $logger;
+        $this->fd = $fd;
+        $this->formatter = Formatter::getInstance();
         $this->title = $title;
         $this->desc = $desc;
         $this->status = $status;
 
-        \fwrite($this->logger->fd, "\e[?25l"); //hide
+        \fwrite($this->fd, "\e[?25l"); //hide
     }
 
-    public function setStatus($status, $style = 'green')
+    public function setStatus(string $status, string $style = 'green'): self
     {
         $this->status = $status;
         $this->update($style);
+
+        return $this;
     }
 
-    public function setActionColumnWidth($width)
+    public function setActionColumnWidth(int $width): self
     {
         $this->actionColumnWidth = $width;
+
+        return $this;
     }
 
-    protected function update($style = 'green')
+    protected function update(string $style = 'green'): self
     {
-        $padding = max($this->actionColumnWidth - strlen($this->title), 1);
-        $buf = sprintf('  %s % -20s',
-            $this->logger->formatter->format(sprintf('%s', $this->title), $style).str_repeat(' ', $padding),
+        $padding = \max($this->actionColumnWidth - \strlen($this->title), 1);
+        $buf = \sprintf('  %s % -20s',
+            $this->formatter->format($this->title, $style) . \str_repeat(' ', $padding),
             $this->status
         );
-        fwrite($this->logger->fd, $buf."\r");
-        fflush($this->logger->fd);
+        \fwrite($this->fd, "$buf\r");
+        \fflush($this->fd);
+
+        return $this;
     }
 
-    public function finalize()
+    protected function finalize(): void
     {
-        fwrite($this->logger->fd, "\n");
-        fflush($this->logger->fd);
-        fwrite($this->logger->fd, "\e[?25h"); // show
+        \fwrite($this->fd, "\n");
+        \fflush($this->fd);
+        \fwrite($this->fd, "\e[?25h"); // show
+
     }
 
-    public function done()
+    public function done(): void
     {
         $this->setStatus('done');
         $this->finalize();

@@ -11,6 +11,8 @@
 
 namespace Hail\Console;
 
+\defined('IS_WINDOWS') || \define('IS_WINDOWS', PHP_OS_FAMILY === 'Windows');
+
 use Hail\Singleton\SingletonTrait;
 
 /**
@@ -102,7 +104,7 @@ class Formatter
 
     public function init(): void
     {
-        if (DIRECTORY_SEPARATOR === '\\') {
+        if (IS_WINDOWS) {
             $this->supportsColors = false !== \getenv('ANSICON') ||
                 'ON' === \getenv('ConEmuANSI') ||
                 'xterm' === \getenv('TERM');
@@ -157,7 +159,7 @@ class Formatter
             }
         }
 
-        return "\033[" . implode(';', $codes) . 'm';
+        return "\033[" . \implode(';', $codes) . 'm';
     }
 
     /**

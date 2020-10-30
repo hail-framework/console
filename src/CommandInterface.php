@@ -11,6 +11,7 @@
 namespace Hail\Console;
 
 use Hail\Console\Exception\RequireValueException;
+use Hail\Console\Logger\Logger;
 use Hail\Console\Option\Option;
 use Hail\Console\Option\OptionCollection;
 use Hail\Console\Option\OptionResult;

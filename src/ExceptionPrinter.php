@@ -2,6 +2,7 @@
 
 namespace Hail\Console;
 
+use Hail\Console\Logger\Logger;
 use Throwable;
 
 class ExceptionPrinter

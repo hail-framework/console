@@ -9,12 +9,10 @@
  *
  */
 
-namespace Hail\Console;
+namespace Hail\Console\Logger;
 
 use Hail\Singleton\SingletonTrait;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerTrait;
-use Psr\Log\LogLevel;
+use Psr\Log\{LogLevel, LoggerTrait, LoggerInterface};
 
 class Logger implements LoggerInterface
 {

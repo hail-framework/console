@@ -11,6 +11,7 @@
 
 namespace Hail\Console;
 
+use Hail\Console\Logger\Logger;
 use Hail\Console\Option\ContinuousOptionParser;
 
 use Hail\Console\Exception\CommandNotFoundException;

@@ -2,7 +2,7 @@
 namespace Hail\Console\Extension;
 
 use Hail\Console\Command;
-use Hail\Console\Logger;
+use Hail\Console\Logger\Logger;
 
 abstract class AbstractExtension
 {

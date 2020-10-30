@@ -10,6 +10,7 @@
 
 namespace Hail\Console;
 
+use Hail\Console\Logger\Logger;
 use Hail\Console\Option\{
     Option,
     OptionCollection,

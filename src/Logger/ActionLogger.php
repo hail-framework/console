@@ -2,18 +2,13 @@
 
 namespace Hail\Console\Logger;
 
-use Hail\Console\Formatter;
-
 class ActionLogger
 {
     public $fd;
 
-    public $formatter;
-
-    public function __construct($fd = null)
+    public function __construct(resource $fd = null)
     {
-        $this->fd = $fd ?: \fopen('php://stderr', 'w');
-        $this->formatter = Formatter::getInstance();
+        $this->fd = $fd ?: \fopen('php://stderr', 'wb');
     }
 
     public function __destruct()
@@ -25,6 +20,6 @@ class ActionLogger
 
     public function newAction(string $title, string $desc = '', string $status = 'waiting')
     {
-        return new LogAction($this, $title, $desc, $status);
+        return new LogAction($this->fd, $title, $desc, $status);
     }
 }

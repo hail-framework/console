@@ -12,6 +12,7 @@ namespace Hail\Console;
 
 use Hail\Console\Exception\ExtensionException;
 use Hail\Console\Extension\AbstractExtension;
+use Hail\Console\Logger\Logger;
 use Hail\Console\Option\OptionResult;
 
 /**
