@@ -2,6 +2,8 @@
 
 namespace Hail\Console\Component;
 
+\defined('IS_WINDOWS') || \define('IS_WINDOWS', PHP_OS_FAMILY === 'Windows');
+
 use Hail\Console\Formatter;
 
 class ProgressBar
@@ -39,7 +41,7 @@ class ProgressBar
 
         if ($columns = \getenv('COLUMNS')) {
             $this->terminalWidth = (int) $columns;
-        } elseif (PHP_OS_FAMILY === 'Windows') {
+        } elseif (IS_WINDOWS) {
             $content = \shell_exec('mode CON');
             \preg_match('/Columns:.*?(\d+)/', $content, $matches);
             $this->terminalWidth = (int) $matches[1];

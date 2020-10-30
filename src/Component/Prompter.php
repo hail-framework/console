@@ -5,8 +5,6 @@ namespace Hail\Console\Component;
 use Hail\Console\ExceptionPrinter;
 use Hail\Console\Formatter;
 use Hail\Console\IO\Console;
-use Hail\Console\IO\Factory;
-use Hail\Console\IO\ReadlineConsole;
 
 /**
  * Prompter class
@@ -20,15 +18,9 @@ class Prompter
      */
     private $formatter;
 
-    /**
-     * @var Console
-     */
-    private $console;
-
     public function __construct()
     {
         $this->formatter = Formatter::getInstance();
-        $this->console = Factory::console();
     }
 
     /**
@@ -91,7 +83,7 @@ class Prompter
 
         $answer = null;
         while (true) {
-            $answer = trim($this->console->readLine($prompt));
+            $answer = trim(Console::readLine($prompt));
             if ($validAnswers) {
                 if (in_array($answer, $validAnswers, true)) {
                     break;
@@ -126,7 +118,7 @@ class Prompter
             echo $this->formatter->getStartMark($this->style);
         }
 
-        $result = $this->console->readPassword($prompt);
+        $result = Console::readPassword($prompt);
 
         if ($this->style) {
             echo $this->formatter->getClearMark();
@@ -182,14 +174,12 @@ class Prompter
         $completionItems = array_keys($choicesMap);
         $choosePrompt = "Please Choose 1-$i > ";
 
-        if (ReadlineConsole::isAvailable()) {
-            readline_completion_function(function () use ($completionItems) {
-                return $completionItems;
-            });
-        }
+        Console::completion(static function () use ($completionItems) {
+            return $completionItems;
+        });
 
         while (true) {
-            $answer = (int) trim($this->console->readLine($choosePrompt));
+            $answer = (int) trim(Console::readLine($choosePrompt));
 
             if (isset($choicesMap[$answer])) {
                 if ($this->style) {
