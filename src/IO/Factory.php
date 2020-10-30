@@ -8,10 +8,10 @@ class Factory
     protected static $stty;
     protected static $console;
 
-    public static function stty()
+    public static function stty(): SttyInterface
     {
         if (self::$stty === null) {
-            if ('\\' === DIRECTORY_SEPARATOR) {
+            if (PHP_OS_FAMILY === 'Windows') {
                 return self::$stty = new NullStty();
             }
 
@@ -21,7 +21,7 @@ class Factory
         return self::$stty;
     }
 
-    public static function console()
+    public static function console(): Console
     {
         if (self::$console === null) {
             if (ReadlineConsole::isAvailable()) {

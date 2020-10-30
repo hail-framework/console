@@ -2,6 +2,8 @@
 
 namespace Hail\Console\IO;
 
+\defined('READLINE_EXTENSION') || \define('READLINE_EXTENSION', \extension_loaded('readline'));
+
 /**
  * Console utilities using readline.
  */
@@ -17,33 +19,29 @@ class ReadlineConsole extends Console
         $this->stty = $stty;
     }
 
-    public static function isAvailable()
+    public static function isAvailable(): bool
     {
-        static $ext;
-        if ($ext === null) {
-            $ext = extension_loaded('readline');
-        }
-
-        return $ext;
+        return READLINE_EXTENSION;
     }
 
-    public function readLine($prompt)
+    public function readLine(string $prompt): string
     {
-        $line = readline($prompt);
-        readline_add_history($line);
+        $line = \readline($prompt);
+        \readline_add_history($line);
+
         return $line;
     }
 
-    public function readPassword($prompt)
+    public function readPassword(string $prompt): string
     {
-        if ('\\' === DIRECTORY_SEPARATOR) {
+        if (PHP_OS_FAMILY === 'Windows') {
             echo $prompt;
 
             return $this->readPasswordForWin();
         }
 
-        return $this->noEcho(function () use ($prompt) {
-            return readline($prompt);
+        return $this->noEcho(static function () use ($prompt) {
+            return \readline($prompt);
         });
     }
 

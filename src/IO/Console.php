@@ -10,14 +10,14 @@ abstract class Console
      *
      * @return string
      */
-    abstract public function readLine($prompt);
+    abstract public function readLine(string $prompt): string;
 
     /**
      * Read a line from user input without echoing if possible.
      *
      * @return string
      */
-    abstract public function readPassword($prompt);
+    abstract public function readPassword(string $prompt): string;
 
     /**
      * Turn off echo and execute the callback function.
@@ -33,7 +33,7 @@ abstract class Console
      *
      * @return string
      */
-    protected function readPasswordForWin()
+    protected function readPasswordForWin(): string
     {
         $exe = __DIR__ . '\bin\hiddeninput.exe';
 

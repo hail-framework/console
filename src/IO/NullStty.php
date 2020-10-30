@@ -4,15 +4,15 @@ namespace Hail\Console\IO;
 
 class NullStty implements SttyInterface
 {
-    public function enableEcho()
+    public function enableEcho(): void
     {
     }
 
-    public function disableEcho()
+    public function disableEcho(): void
     {
     }
 
-    public function dump()
+    public function dump(): string
     {
         return '';
     }

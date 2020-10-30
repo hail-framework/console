@@ -17,18 +17,18 @@ class StandardConsole extends Console
         $this->stty = $stty;
     }
 
-    public function readLine($prompt)
+    public function readLine(string $prompt): string
     {
         echo $prompt;
 
         return $this->read();
     }
 
-    public function readPassword($prompt)
+    public function readPassword(string $prompt): string
     {
         echo $prompt;
 
-        if ('\\' === DIRECTORY_SEPARATOR) {
+        if (PHP_OS_FAMILY === 'Windows') {
             return $this->readPasswordForWin();
         }
 
@@ -44,6 +44,6 @@ class StandardConsole extends Console
 
     private function read()
     {
-        return rtrim(fgets(STDIN), "\n");
+        return \rtrim(\fgets(STDIN), "\n");
     }
 }

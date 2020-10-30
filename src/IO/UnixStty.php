@@ -4,17 +4,17 @@ namespace Hail\Console\IO;
 
 class UnixStty implements SttyInterface
 {
-    public function enableEcho()
+    public function enableEcho(): void
     {
         shell_exec('stty echo');
     }
 
-    public function disableEcho()
+    public function disableEcho(): void
     {
         shell_exec('stty -echo');
     }
 
-    public function dump()
+    public function dump(): string
     {
         return shell_exec('stty -g');
     }
@@ -37,12 +37,8 @@ class UnixStty implements SttyInterface
         return $result;
     }
 
-    private function restoreStyle($style)
+    private function restoreStyle(string $style): void
     {
-        if ($style === null) {
-            return;
-        }
-
         shell_exec('stty ' . $style);
     }
 }

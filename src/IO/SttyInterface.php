@@ -10,19 +10,19 @@ interface SttyInterface
     /**
      * Turn on echo.
      */
-    public function enableEcho();
+    public function enableEcho(): void;
 
     /**
      * Turn off echo.
      */
-    public function disableEcho();
+    public function disableEcho(): void;
 
     /**
      * Dump all current settings in a-stty readable form.
      *
      * @return string
      */
-    public function dump();
+    public function dump(): string;
 
     /**
      * Turn off echoing and execute the callback function.
