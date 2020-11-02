@@ -58,7 +58,7 @@ class Argument
      * @param string $specString
      * @throws \InvalidArgumentException
      */
-    protected function initFromSpecString($specString)
+    protected function initFromSpecString(string $specString): void
     {
         $pattern = '/
         ([a-zA-Z0-9-]+)
@@ -126,9 +126,9 @@ class Argument
         return $this->optional;
     }
 
-    public function optional(): self
+    public function optional(bool $is = true): self
     {
-        $this->optional = true;
+        $this->optional = $is;
 
         return $this;
     }

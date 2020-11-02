@@ -135,7 +135,7 @@ class ContinuousOptionParser extends OptionParser
     }
 
 
-    protected function fillDefaultValues(OptionCollection $opts, OptionResult $result)
+    protected function fillDefaultValues(OptionCollection $opts, OptionResult $result): void
     {
         // register option result from options with default value
         foreach ($opts as $opt) {

@@ -11,20 +11,17 @@
 
 namespace Hail\Console;
 
-use Hail\Console\Logger\Logger;
-use Hail\Console\Option\ContinuousOptionParser;
-
-use Hail\Console\Exception\CommandNotFoundException;
-use Hail\Console\Exception\CommandArgumentNotEnoughException;
-
-use Hail\Console\Command\Help;
-use Hail\Console\Command\ZshCompletion;
-use Hail\Console\Command\BashCompletion;
-use Hail\Console\Command\Meta;
-use Hail\Console\Command\Phar;
-
-use Hail\Console\Option\OptionResult;
+use Hail\Console\Option\{
+    ContinuousOptionParser, OptionResult
+};
+use Hail\Console\Exception\{
+    CommandNotFoundException, CommandArgumentNotEnoughException
+};
+use Hail\Console\Command\{
+    Help, ZshCompletion, BashCompletion, Meta, Phar
+};
 use Psr\Log\LogLevel;
+use Hail\Console\Logger\Logger;
 
 class Application implements CommandInterface
 {
@@ -45,15 +42,9 @@ class Application implements CommandInterface
     protected $config;
     protected $loader;
 
-    public function __construct($config, $parent = null)
+    public function __construct(array $config)
     {
-        // this variable is optional (for backward compatibility)
-        if ($parent) {
-            $this->setParent($parent);
-        }
-
-        // create an empty option result, please note this result object will
-        // be replaced with the parsed option result.
+        // The empty option result will be replaced with the parsed option result.
         $this->setOptions(new OptionResult());
         $this->setLogger(Logger::getInstance());
         $this->config = $config;
@@ -64,15 +55,15 @@ class Application implements CommandInterface
      */
     public function brief(): string
     {
-        return 'Hail-Framework Console';
+        return 'Hail Console';
     }
 
     public function help(): string
     {
-        $progname = basename($this->getProgramName());
+        $name = \basename($this->getProgramName());
 
-        return wordwrap(
-            "'$progname help' lists available subcommands. See $progname help <command> to read about a specific subcommand or $progname.",
+        return \wordwrap(
+            "'$name help' lists available subcommands. See $name help <command> to read about a specific subcommand or $name.",
             70
         );
     }
@@ -88,8 +79,10 @@ class Application implements CommandInterface
         ])->setId('dev');
 
         $commands = $this->config('commands', []);
-        foreach ($commands as $command) {
-            $this->addCommand($command);
+        if ($commands !== []) {
+            foreach ($commands as $command) {
+                $this->addCommand($command);
+            }
         }
 
         $this->addOption('v|verbose', 'Print verbose message.');
@@ -161,14 +154,14 @@ class Application implements CommandInterface
     {
         $this->setProgramName($argv[0]);
 
-        $currentCommand = $this;
+        $current = $this;
 
         // init application,
         // before parsing options, we have to known the registered commands.
-        $currentCommand->init();
+        $current->init();
 
-        // use getoption kit to parse application options
-        $parser = new ContinuousOptionParser($currentCommand->getOptionCollection());
+        // parse application options
+        $parser = new ContinuousOptionParser($current->getOptionCollection());
 
         // parse the first part options (options after script name)
         // option parser should stop before next command name.
@@ -178,36 +171,35 @@ class Application implements CommandInterface
         //                  |->> parser
         //
         //
-        $currentCommand->setOptions(
+        $current->setOptions(
             $parser->parse($argv)
         );
 
-        if (false === $currentCommand->prepare()) {
+        if (false === $current->prepare()) {
             return false;
         }
 
-        $commandStack = [];
-        $arguments = [];
+        $commandStack = $arguments = [];
 
         // build the command list from command line arguments
         while (!$parser->isEnd()) {
             $a = $parser->getCurrentArgument();
 
             // if current command is in subcommand list.
-            if ($currentCommand->hasCommands()) {
+            if ($current->hasCommands()) {
 
-                if (!$currentCommand->hasCommand($a)) {
-                    if (!$this->getOption('no-interact') && ($guess = $currentCommand->guessCommand($a)) !== null) {
+                if (!$current->hasCommand($a)) {
+                    if (!$this->getOption('no-interact') && ($guess = $current->guessCommand($a)) !== null) {
                         $a = $guess;
                     } else {
-                        throw new CommandNotFoundException($currentCommand, $a);
+                        throw new CommandNotFoundException($current, $a);
                     }
                 }
 
                 $parser->advance(); // advance position
 
                 // get command object of "$a"
-                $nextCommand = $currentCommand->getCommand($a);
+                $nextCommand = $current->getCommand($a);
 
                 $parser->setSpecs($nextCommand->getOptionCollection());
 
@@ -216,13 +208,13 @@ class Application implements CommandInterface
                     $parser->continueParse()
                 );
 
-                $commandStack[] = $currentCommand = $nextCommand; // save command object into the stack
+                $commandStack[] = $current = $nextCommand; // save command object into the stack
             } else {
                 $r = $parser->continueParse();
 
                 if (\count($r)) {
                     // get the option result and merge the new result
-                    $currentCommand->getOptions()->merge($r);
+                    $current->getOptions()->merge($r);
                 } else {
                     $a = $parser->advance();
                     $arguments[] = $a;
@@ -251,7 +243,7 @@ class Application implements CommandInterface
             return true;
         }
 
-        $currentCommand->finish();
+        $current->finish();
         $this->finish();
 
         return true;
@@ -263,7 +255,7 @@ class Application implements CommandInterface
      */
     public function prepare(): void
     {
-        $this->startedAt = microtime(true);
+        $this->startedAt = \microtime(true);
 
         if ($this->getOption('debug')) {
             $this->logger->setLevel(LogLevel::DEBUG);
@@ -291,12 +283,14 @@ class Application implements CommandInterface
         }
     }
 
-    public function setProgramName($programName)
+    public function setProgramName(string $programName): self
     {
         $this->programName = $programName;
+
+        return $this;
     }
 
-    public function getProgramName()
+    public function getProgramName(): string
     {
         return $this->programName;
     }
@@ -333,7 +327,7 @@ class Application implements CommandInterface
         throw new CommandNotFoundException($this, 'help');
     }
 
-    public function config($key = null, $default = null)
+    public function config(string $key = null, $default = null)
     {
         if ($key === null) {
             return $this->config;
