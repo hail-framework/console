@@ -1,6 +1,6 @@
 <?php
 
-namespace Hail\Console\IO;
+namespace Hail\Console\Component;
 
 \defined('READLINE_EXTENSION') || \define('READLINE_EXTENSION', \extension_loaded('readline'));
 \defined('IS_WINDOWS') || \define('IS_WINDOWS', PHP_OS_FAMILY === 'Windows');
@@ -39,14 +39,14 @@ class Console
         }
 
         if (READLINE_EXTENSION) {
-            return Stty::withoutEcho(static function () use ($prompt) {
+            return self::withoutEcho(static function () use ($prompt) {
                 return \readline($prompt);
             });
         }
 
         echo $prompt;
 
-        return Stty::withoutEcho(
+        return self::withoutEcho(
             \Closure::fromCallable('self::read')
         );
     }
@@ -77,5 +77,31 @@ class Console
         echo "\n";
 
         return $return;
+    }
+
+    /**
+     * Turn off echoing and execute the callback function.
+     *
+     * @param \Closure $callback
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function withoutEcho(\Closure $callback)
+    {
+        if (IS_WINDOWS) {
+            return $callback();
+        }
+
+        $style = \shell_exec('stty -g');
+        // don't display characters from user input.
+        \shell_exec('stty -echo');
+        $result = null;
+
+        try {
+            return $callback();
+        } finally {
+            \shell_exec('stty ' . $style);
+        }
     }
 }

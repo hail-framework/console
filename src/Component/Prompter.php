@@ -2,9 +2,9 @@
 
 namespace Hail\Console\Component;
 
-use Hail\Console\ExceptionPrinter;
-use Hail\Console\Formatter;
-use Hail\Console\IO\Console;
+use Hail\Console\{
+    Formatter, ExceptionPrinter
+};
 
 /**
  * Prompter class
@@ -26,7 +26,7 @@ class Prompter
     /**
      * set prompt style
      */
-    public function setStyle($style)
+    public function setStyle(string $style): self
     {
         $this->style = $style;
 
@@ -72,7 +72,7 @@ class Prompter
                     $answers[] = $v;
                 }
             }
-            $prompt .= ' (' . implode('/', $answers) . ')';
+            $prompt .= ' (' . \implode('/', $answers) . ')';
         }
 
         $prompt .= ' ';
@@ -83,13 +83,13 @@ class Prompter
 
         $answer = null;
         while (true) {
-            $answer = trim(Console::readLine($prompt));
+            $answer = \trim(Console::readLine($prompt));
             if ($validAnswers) {
-                if (in_array($answer, $validAnswers, true)) {
+                if (\in_array($answer, $validAnswers, true)) {
                     break;
                 }
 
-                if (trim($answer) === '' && $default) {
+                if ($default && \trim($answer) === '') {
                     $answer = $default;
                     break;
                 }
